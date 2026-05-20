@@ -1,91 +1,164 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## v1.6.0 (24/11/2017)
+*No changelog for this release.*
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+---
 
-## [v1.1.0](https://github.com/inspect-js/has-symbols/compare/v1.0.3...v1.1.0) - 2024-12-02
+## v2.0.4 (24/11/2017)
+- [**closed**] Switch to mime-score module for resolving extension contention issues. [#182](https://github.com/broofa/node-mime/issues/182)
+- [**closed**] Update mime-db to 1.31.0 in v1.x branch [#181](https://github.com/broofa/node-mime/issues/181)
 
-### Commits
+---
 
-- [actions] update workflows [`548c0bf`](https://github.com/inspect-js/has-symbols/commit/548c0bf8c9b1235458df7a1c0490b0064647a282)
-- [actions] further shard; update action deps [`bec56bb`](https://github.com/inspect-js/has-symbols/commit/bec56bb0fb44b43a786686b944875a3175cf3ff3)
-- [meta] use `npmignore` to autogenerate an npmignore file [`ac81032`](https://github.com/inspect-js/has-symbols/commit/ac81032809157e0a079e5264e9ce9b6f1275777e)
-- [New] add types [`6469cbf`](https://github.com/inspect-js/has-symbols/commit/6469cbff1866cfe367b2b3d181d9296ec14b2a3d)
-- [actions] update rebase action to use reusable workflow [`9c9d4d0`](https://github.com/inspect-js/has-symbols/commit/9c9d4d0d8938e4b267acdf8e421f4e92d1716d72)
-- [Dev Deps] update `eslint`, `@ljharb/eslint-config`, `aud`, `tape` [`adb5887`](https://github.com/inspect-js/has-symbols/commit/adb5887ca9444849b08beb5caaa9e1d42320cdfb)
-- [Dev Deps] update `@ljharb/eslint-config`, `aud`, `tape` [`13ec198`](https://github.com/inspect-js/has-symbols/commit/13ec198ec80f1993a87710af1606a1970b22c7cb)
-- [Dev Deps] update `auto-changelog`, `core-js`, `tape` [`941be52`](https://github.com/inspect-js/has-symbols/commit/941be5248387cab1da72509b22acf3fdb223f057)
-- [Tests] replace `aud` with `npm audit` [`74f49e9`](https://github.com/inspect-js/has-symbols/commit/74f49e9a9d17a443020784234a1c53ce765b3559)
-- [Dev Deps] update `npmignore` [`9c0ac04`](https://github.com/inspect-js/has-symbols/commit/9c0ac0452a834f4c2a4b54044f2d6a89f17e9a70)
-- [Dev Deps] add missing peer dep [`52337a5`](https://github.com/inspect-js/has-symbols/commit/52337a5621cced61f846f2afdab7707a8132cc12)
+## v1.5.0 (22/11/2017)
+- [**closed**] need ES5 version ready in npm package [#179](https://github.com/broofa/node-mime/issues/179)
+- [**closed**] mime-db no trace of iWork - pages / numbers / etc. [#178](https://github.com/broofa/node-mime/issues/178)
+- [**closed**] How it works in brownser ? [#176](https://github.com/broofa/node-mime/issues/176)
+- [**closed**] Missing `./Mime` [#175](https://github.com/broofa/node-mime/issues/175)
+- [**closed**] Vulnerable Regular Expression [#167](https://github.com/broofa/node-mime/issues/167)
 
-## [v1.0.3](https://github.com/inspect-js/has-symbols/compare/v1.0.2...v1.0.3) - 2022-03-01
+---
 
-### Commits
+## v2.0.3 (25/09/2017)
+*No changelog for this release.*
 
-- [actions] use `node/install` instead of `node/run`; use `codecov` action [`518b28f`](https://github.com/inspect-js/has-symbols/commit/518b28f6c5a516cbccae30794e40aa9f738b1693)
-- [meta] add `bugs` and `homepage` fields; reorder package.json [`c480b13`](https://github.com/inspect-js/has-symbols/commit/c480b13fd6802b557e1cef9749872cb5fdeef744)
-- [actions] reuse common workflows [`01d0ee0`](https://github.com/inspect-js/has-symbols/commit/01d0ee0a8d97c0947f5edb73eb722027a77b2b07)
-- [actions] update codecov uploader [`6424ebe`](https://github.com/inspect-js/has-symbols/commit/6424ebe86b2c9c7c3d2e9bd4413a4e4f168cb275)
-- [Dev Deps] update `eslint`, `@ljharb/eslint-config`, `aud`, `auto-changelog`, `tape` [`dfa7e7f`](https://github.com/inspect-js/has-symbols/commit/dfa7e7ff38b594645d8c8222aab895157fa7e282)
-- [Dev Deps] update `eslint`, `@ljharb/eslint-config`, `safe-publish-latest`, `tape` [`0c8d436`](https://github.com/inspect-js/has-symbols/commit/0c8d43685c45189cea9018191d4fd7eca91c9d02)
-- [Dev Deps] update `eslint`, `@ljharb/eslint-config`, `aud`, `tape` [`9026554`](https://github.com/inspect-js/has-symbols/commit/902655442a1bf88e72b42345494ef0c60f5d36ab)
-- [readme] add actions and codecov badges [`eaa9682`](https://github.com/inspect-js/has-symbols/commit/eaa9682f990f481d3acf7a1c7600bec36f7b3adc)
-- [Dev Deps] update `eslint`, `tape` [`bc7a3ba`](https://github.com/inspect-js/has-symbols/commit/bc7a3ba46f27b7743f8a2579732d59d1b9ac791e)
-- [Dev Deps] update `eslint`, `auto-changelog` [`0ace00a`](https://github.com/inspect-js/has-symbols/commit/0ace00af08a88cdd1e6ce0d60357d941c60c2d9f)
-- [meta] use `prepublishOnly` script for npm 7+ [`093f72b`](https://github.com/inspect-js/has-symbols/commit/093f72bc2b0ed00c781f444922a5034257bf561d)
-- [Tests] test on all 16 minors [`9b80d3d`](https://github.com/inspect-js/has-symbols/commit/9b80d3d9102529f04c20ec5b1fcc6e38426c6b03)
+---
 
-## [v1.0.2](https://github.com/inspect-js/has-symbols/compare/v1.0.1...v1.0.2) - 2021-02-27
+## v1.4.1 (25/09/2017)
+- [**closed**] Issue when bundling with webpack [#172](https://github.com/broofa/node-mime/issues/172)
 
-### Fixed
+---
 
-- [Fix] use a universal way to get the original Symbol [`#11`](https://github.com/inspect-js/has-symbols/issues/11)
+## v2.0.2 (15/09/2017)
+- [**V2**] fs.readFileSync is not a function [#165](https://github.com/broofa/node-mime/issues/165)
+- [**closed**] The extension for video/quicktime should map to .mov, not .qt [#164](https://github.com/broofa/node-mime/issues/164)
+- [**V2**] [v2 Feedback request] Mime class API [#163](https://github.com/broofa/node-mime/issues/163)
+- [**V2**] [v2 Feedback request] Resolving conflicts over extensions [#162](https://github.com/broofa/node-mime/issues/162)
+- [**V2**] Allow callers to load module with official, full, or no defined types.  [#161](https://github.com/broofa/node-mime/issues/161)
+- [**V2**] Use "facets" to resolve extension conflicts [#160](https://github.com/broofa/node-mime/issues/160)
+- [**V2**] Remove fs and path dependencies [#152](https://github.com/broofa/node-mime/issues/152)
+- [**V2**] Default content-type should not be application/octet-stream [#139](https://github.com/broofa/node-mime/issues/139)
+- [**V2**] reset mime-types [#124](https://github.com/broofa/node-mime/issues/124)
+- [**V2**] Extensionless paths should return null or false [#113](https://github.com/broofa/node-mime/issues/113)
 
-### Commits
+---
 
-- [Tests] migrate tests to Github Actions [`90ae798`](https://github.com/inspect-js/has-symbols/commit/90ae79820bdfe7bc703d67f5f3c5e205f98556d3)
-- [meta] do not publish github action workflow files [`29e60a1`](https://github.com/inspect-js/has-symbols/commit/29e60a1b7c25c7f1acf7acff4a9320d0d10c49b4)
-- [Tests] run `nyc` on all tests [`8476b91`](https://github.com/inspect-js/has-symbols/commit/8476b915650d360915abe2522505abf4b0e8f0ae)
-- [readme] fix repo URLs, remove defunct badges [`126288e`](https://github.com/inspect-js/has-symbols/commit/126288ecc1797c0a40247a6b78bcb2e0bc5d7036)
-- [Dev Deps] update `eslint`, `@ljharb/eslint-config`, `aud`, `auto-changelog`, `core-js`, `get-own-property-symbols` [`d84bdfa`](https://github.com/inspect-js/has-symbols/commit/d84bdfa48ac5188abbb4904b42614cd6c030940a)
-- [Tests] fix linting errors [`0df3070`](https://github.com/inspect-js/has-symbols/commit/0df3070b981b6c9f2ee530c09189a7f5c6def839)
-- [actions] add "Allow Edits" workflow [`1e6bc29`](https://github.com/inspect-js/has-symbols/commit/1e6bc29b188f32b9648657b07eda08504be5aa9c)
-- [Dev Deps] update `eslint`, `@ljharb/eslint-config`, `tape` [`36cea2a`](https://github.com/inspect-js/has-symbols/commit/36cea2addd4e6ec435f35a2656b4e9ef82498e9b)
-- [Dev Deps] update `eslint`, `@ljharb/eslint-config`, `aud`, `tape` [`1278338`](https://github.com/inspect-js/has-symbols/commit/127833801865fbc2cc8979beb9ca869c7bfe8222)
-- [Dev Deps] update `eslint`, `@ljharb/eslint-config`, `aud`, `tape` [`1493254`](https://github.com/inspect-js/has-symbols/commit/1493254eda13db5fb8fc5e4a3e8324b3d196029d)
-- [Dev Deps] update `eslint`, `@ljharb/eslint-config`, `core-js` [`b090bf2`](https://github.com/inspect-js/has-symbols/commit/b090bf214d3679a30edc1e2d729d466ab5183e1d)
-- [actions] switch Automatic Rebase workflow to `pull_request_target` event [`4addb7a`](https://github.com/inspect-js/has-symbols/commit/4addb7ab4dc73f927ae99928d68817554fc21dc0)
-- [Dev Deps] update `auto-changelog`, `tape` [`81d0baf`](https://github.com/inspect-js/has-symbols/commit/81d0baf3816096a89a8558e8043895f7a7d10d8b)
-- [Dev Deps] update `auto-changelog`; add `aud` [`1a4e561`](https://github.com/inspect-js/has-symbols/commit/1a4e5612c25d91c3a03d509721d02630bc4fe3da)
-- [readme] remove unused testling URLs [`3000941`](https://github.com/inspect-js/has-symbols/commit/3000941f958046e923ed8152edb1ef4a599e6fcc)
-- [Tests] only audit prod deps [`692e974`](https://github.com/inspect-js/has-symbols/commit/692e9743c912410e9440207631a643a34b4741a1)
-- [Dev Deps] update `@ljharb/eslint-config` [`51c946c`](https://github.com/inspect-js/has-symbols/commit/51c946c7f6baa793ec5390bb5a45cdce16b4ba76)
+## v2.0.1 (14/09/2017)
+- [**closed**] Changelog for v2.0 does not mention breaking changes [#171](https://github.com/broofa/node-mime/issues/171)
+- [**closed**] MIME breaking with 'class' declaration as it is without 'use strict mode' [#170](https://github.com/broofa/node-mime/issues/170)
 
-## [v1.0.1](https://github.com/inspect-js/has-symbols/compare/v1.0.0...v1.0.1) - 2019-11-16
+---
 
-### Commits
+## v2.0.0 (12/09/2017)
+- [**closed**] woff and woff2 [#168](https://github.com/broofa/node-mime/issues/168)
 
-- [Tests] use shared travis-ci configs [`ce396c9`](https://github.com/inspect-js/has-symbols/commit/ce396c9419ff11c43d0da5d05cdbb79f7fb42229)
-- [Tests] up to `node` `v12.4`, `v11.15`, `v10.15`, `v9.11`, `v8.15`, `v7.10`, `v6.17`, `v4.9`; use `nvm install-latest-npm` [`0690732`](https://github.com/inspect-js/has-symbols/commit/0690732801f47ab429f39ba1962f522d5c462d6b)
-- [meta] add `auto-changelog` [`2163d0b`](https://github.com/inspect-js/has-symbols/commit/2163d0b7f36343076b8f947cd1667dd1750f26fc)
-- [Dev Deps] update `eslint`, `@ljharb/eslint-config`, `core-js`, `safe-publish-latest`, `tape` [`8e0951f`](https://github.com/inspect-js/has-symbols/commit/8e0951f1a7a2e52068222b7bb73511761e6e4d9c)
-- [actions] add automatic rebasing / merge commit blocking [`b09cdb7`](https://github.com/inspect-js/has-symbols/commit/b09cdb7cd7ee39e7a769878f56e2d6066f5ccd1d)
-- [Dev Deps] update `eslint`, `@ljharb/eslint-config`, `safe-publish-latest`, `core-js`, `get-own-property-symbols`, `tape` [`1dd42cd`](https://github.com/inspect-js/has-symbols/commit/1dd42cd86183ed0c50f99b1062345c458babca91)
-- [meta] create FUNDING.yml [`aa57a17`](https://github.com/inspect-js/has-symbols/commit/aa57a17b19708906d1927f821ea8e73394d84ca4)
-- Only apps should have lockfiles [`a2d8bea`](https://github.com/inspect-js/has-symbols/commit/a2d8bea23a97d15c09eaf60f5b107fcf9a4d57aa)
-- [Tests] use `npx aud` instead of `nsp` or `npm audit` with hoops [`9e96cb7`](https://github.com/inspect-js/has-symbols/commit/9e96cb783746cbed0c10ef78e599a8eaa7ebe193)
-- [meta] add `funding` field [`a0b32cf`](https://github.com/inspect-js/has-symbols/commit/a0b32cf68e803f963c1639b6d47b0a9d6440bab0)
-- [Dev Deps] update `safe-publish-latest` [`cb9f0a5`](https://github.com/inspect-js/has-symbols/commit/cb9f0a521a3a1790f1064d437edd33bb6c3d6af0)
+---
 
-## v1.0.0 - 2016-09-19
+## v1.4.0 (28/08/2017)
+- [**closed**] support for ac3 voc files [#159](https://github.com/broofa/node-mime/issues/159)
+- [**closed**] Help understanding change from application/xml to text/xml [#158](https://github.com/broofa/node-mime/issues/158)
+- [**closed**] no longer able to override mimetype [#157](https://github.com/broofa/node-mime/issues/157)
+- [**closed**] application/vnd.adobe.photoshop [#147](https://github.com/broofa/node-mime/issues/147)
+- [**closed**] Directories should appear as something other than application/octet-stream [#135](https://github.com/broofa/node-mime/issues/135)
+- [**closed**] requested features [#131](https://github.com/broofa/node-mime/issues/131)
+- [**closed**] Make types.json loading optional? [#129](https://github.com/broofa/node-mime/issues/129)
+- [**closed**] Cannot find module './types.json' [#120](https://github.com/broofa/node-mime/issues/120)
+- [**V2**] .wav files show up as "audio/x-wav" instead of "audio/x-wave" [#118](https://github.com/broofa/node-mime/issues/118)
+- [**closed**] Don't be a pain in the ass for node community [#108](https://github.com/broofa/node-mime/issues/108)
+- [**closed**] don't make default_type global [#78](https://github.com/broofa/node-mime/issues/78)
+- [**closed**] mime.extension() fails if the content-type is parameterized [#74](https://github.com/broofa/node-mime/issues/74)
 
-### Commits
+---
 
-- Tests. [`ecb6eb9`](https://github.com/inspect-js/has-symbols/commit/ecb6eb934e4883137f3f93b965ba5e0a98df430d)
-- package.json [`88a337c`](https://github.com/inspect-js/has-symbols/commit/88a337cee0864a0da35f5d19e69ff0ef0150e46a)
-- Initial commit [`42e1e55`](https://github.com/inspect-js/has-symbols/commit/42e1e5502536a2b8ac529c9443984acd14836b1c)
-- Initial implementation. [`33f5cc6`](https://github.com/inspect-js/has-symbols/commit/33f5cc6cdff86e2194b081ee842bfdc63caf43fb)
-- read me [`01f1170`](https://github.com/inspect-js/has-symbols/commit/01f1170188ff7cb1558aa297f6ba5b516c6d7b0c)
+## v1.3.6 (11/05/2017)
+- [**closed**] .md should be text/markdown as of March 2016 [#154](https://github.com/broofa/node-mime/issues/154)
+- [**closed**] Error while installing mime [#153](https://github.com/broofa/node-mime/issues/153)
+- [**closed**] application/manifest+json [#149](https://github.com/broofa/node-mime/issues/149)
+- [**closed**] Dynamic adaptive streaming over HTTP (DASH) file extension typo [#141](https://github.com/broofa/node-mime/issues/141)
+- [**closed**] charsets image/png undefined [#140](https://github.com/broofa/node-mime/issues/140)
+- [**closed**] Mime-db dependency out of date [#130](https://github.com/broofa/node-mime/issues/130)
+- [**closed**] how to support plist？ [#126](https://github.com/broofa/node-mime/issues/126)
+- [**closed**] how does .types file format look like? [#123](https://github.com/broofa/node-mime/issues/123)
+- [**closed**] Feature: support for expanding MIME patterns [#121](https://github.com/broofa/node-mime/issues/121)
+- [**closed**] DEBUG_MIME doesn't work [#117](https://github.com/broofa/node-mime/issues/117)
+
+---
+
+## v1.3.4 (06/02/2015)
+*No changelog for this release.*
+
+---
+
+## v1.3.3 (06/02/2015)
+*No changelog for this release.*
+
+---
+
+## v1.3.1 (05/02/2015)
+- [**closed**] Consider adding support for Handlebars .hbs file ending [#111](https://github.com/broofa/node-mime/issues/111)
+- [**closed**] Consider adding support for hjson. [#110](https://github.com/broofa/node-mime/issues/110)
+- [**closed**] Add mime type for Opus audio files [#94](https://github.com/broofa/node-mime/issues/94)
+- [**closed**] Consider making the `Requesting New Types` information more visible [#77](https://github.com/broofa/node-mime/issues/77)
+
+---
+
+## v1.3.0 (05/02/2015)
+- [**closed**] Add common name? [#114](https://github.com/broofa/node-mime/issues/114)
+- [**closed**] application/x-yaml [#104](https://github.com/broofa/node-mime/issues/104)
+- [**closed**] Add mime type for WOFF file format 2.0 [#102](https://github.com/broofa/node-mime/issues/102)
+- [**closed**] application/x-msi for .msi [#99](https://github.com/broofa/node-mime/issues/99)
+- [**closed**] Add mimetype for gettext translation files [#98](https://github.com/broofa/node-mime/issues/98)
+- [**closed**] collaborators [#88](https://github.com/broofa/node-mime/issues/88)
+- [**closed**] getting errot in installation of mime module...any1 can help? [#87](https://github.com/broofa/node-mime/issues/87)
+- [**closed**] should application/json's charset be utf8? [#86](https://github.com/broofa/node-mime/issues/86)
+- [**closed**] Add "license" and "licenses" to package.json [#81](https://github.com/broofa/node-mime/issues/81)
+- [**closed**] lookup with extension-less file on Windows returns wrong type [#68](https://github.com/broofa/node-mime/issues/68)
+
+---
+
+## v1.2.11 (15/08/2013)
+- [**closed**] Update mime.types [#65](https://github.com/broofa/node-mime/issues/65)
+- [**closed**] Publish a new version [#63](https://github.com/broofa/node-mime/issues/63)
+- [**closed**] README should state upfront that "application/octet-stream" is default for unknown extension [#55](https://github.com/broofa/node-mime/issues/55)
+- [**closed**] Suggested improvement to the charset API [#52](https://github.com/broofa/node-mime/issues/52)
+
+---
+
+## v1.2.10 (25/07/2013)
+- [**closed**] Mime type for woff files should be application/font-woff and not application/x-font-woff [#62](https://github.com/broofa/node-mime/issues/62)
+- [**closed**] node.types in conflict with mime.types [#51](https://github.com/broofa/node-mime/issues/51)
+
+---
+
+## v1.2.9 (17/01/2013)
+- [**closed**] Please update "mime" NPM [#49](https://github.com/broofa/node-mime/issues/49)
+- [**closed**] Please add semicolon [#46](https://github.com/broofa/node-mime/issues/46)
+- [**closed**] parse full mime types [#43](https://github.com/broofa/node-mime/issues/43)
+
+---
+
+## v1.2.8 (10/01/2013)
+- [**closed**] /js directory mime is application/javascript. Is it correct? [#47](https://github.com/broofa/node-mime/issues/47)
+- [**closed**] Add mime types for lua code. [#45](https://github.com/broofa/node-mime/issues/45)
+
+---
+
+## v1.2.7 (19/10/2012)
+- [**closed**] cannot install 1.2.7 via npm [#41](https://github.com/broofa/node-mime/issues/41)
+- [**closed**] Transfer ownership to @broofa [#36](https://github.com/broofa/node-mime/issues/36)
+- [**closed**] it's wrong to set charset to UTF-8 for text [#30](https://github.com/broofa/node-mime/issues/30)
+- [**closed**] Allow multiple instances of MIME types container [#27](https://github.com/broofa/node-mime/issues/27)
+
+---
+
+## v1.2.5 (16/02/2012)
+- [**closed**] When looking up a types, check hasOwnProperty [#23](https://github.com/broofa/node-mime/issues/23)
+- [**closed**] Bump version to 1.2.2 [#18](https://github.com/broofa/node-mime/issues/18)
+- [**closed**] No license [#16](https://github.com/broofa/node-mime/issues/16)
+- [**closed**] Some types missing that are used by html5/css3 [#13](https://github.com/broofa/node-mime/issues/13)
+- [**closed**] npm install fails for 1.2.1 [#12](https://github.com/broofa/node-mime/issues/12)
+- [**closed**] image/pjpeg + image/x-png [#10](https://github.com/broofa/node-mime/issues/10)
+- [**closed**] symlink [#8](https://github.com/broofa/node-mime/issues/8)
+- [**closed**] gzip [#2](https://github.com/broofa/node-mime/issues/2)
+- [**closed**] ALL CAPS filenames return incorrect mime type [#1](https://github.com/broofa/node-mime/issues/1)

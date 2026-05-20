@@ -1,46 +1,90 @@
-# has-symbols <sup>[![Version Badge][2]][1]</sup>
+# mime
 
-[![github actions][actions-image]][actions-url]
-[![coverage][codecov-image]][codecov-url]
-[![dependency status][5]][6]
-[![dev dependency status][7]][8]
-[![License][license-image]][license-url]
-[![Downloads][downloads-image]][downloads-url]
+Comprehensive MIME type mapping API based on mime-db module.
 
-[![npm badge][11]][1]
+## Install
 
-Determine if the JS environment has Symbol support. Supports spec, or shams.
+Install with [npm](http://github.com/isaacs/npm):
 
-## Example
+    npm install mime
+
+## Contributing / Testing
+
+    npm run test
+
+## Command Line
+
+    mime [path_string]
+
+E.g.
+
+    > mime scripts/jquery.js
+    application/javascript
+
+## API - Queries
+
+### mime.lookup(path)
+Get the mime type associated with a file, if no mime type is found `application/octet-stream` is returned. Performs a case-insensitive lookup using the extension in `path` (the substring after the last '/' or '.').  E.g.
 
 ```js
-var hasSymbols = require('has-symbols');
+var mime = require('mime');
 
-hasSymbols() === true; // if the environment has native Symbol support. Not polyfillable, not forgeable.
-
-var hasSymbolsKinda = require('has-symbols/shams');
-hasSymbolsKinda() === true; // if the environment has a Symbol sham that mostly follows the spec.
+mime.lookup('/path/to/file.txt');         // => 'text/plain'
+mime.lookup('file.txt');                  // => 'text/plain'
+mime.lookup('.TXT');                      // => 'text/plain'
+mime.lookup('htm');                       // => 'text/html'
 ```
 
-## Supported Symbol shams
- - get-own-property-symbols [npm](https://www.npmjs.com/package/get-own-property-symbols) | [github](https://github.com/WebReflection/get-own-property-symbols)
- - core-js [npm](https://www.npmjs.com/package/core-js) | [github](https://github.com/zloirock/core-js)
+### mime.default_type
+Sets the mime type returned when `mime.lookup` fails to find the extension searched for. (Default is `application/octet-stream`.)
 
-## Tests
-Simply clone the repo, `npm install`, and run `npm test`
+### mime.extension(type)
+Get the default extension for `type`
 
-[1]: https://npmjs.org/package/has-symbols
-[2]: https://versionbadg.es/inspect-js/has-symbols.svg
-[5]: https://david-dm.org/inspect-js/has-symbols.svg
-[6]: https://david-dm.org/inspect-js/has-symbols
-[7]: https://david-dm.org/inspect-js/has-symbols/dev-status.svg
-[8]: https://david-dm.org/inspect-js/has-symbols#info=devDependencies
-[11]: https://nodei.co/npm/has-symbols.png?downloads=true&stars=true
-[license-image]: https://img.shields.io/npm/l/has-symbols.svg
-[license-url]: LICENSE
-[downloads-image]: https://img.shields.io/npm/dm/has-symbols.svg
-[downloads-url]: https://npm-stat.com/charts.html?package=has-symbols
-[codecov-image]: https://codecov.io/gh/inspect-js/has-symbols/branch/main/graphs/badge.svg
-[codecov-url]: https://app.codecov.io/gh/inspect-js/has-symbols/
-[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/inspect-js/has-symbols
-[actions-url]: https://github.com/inspect-js/has-symbols/actions
+```js
+mime.extension('text/html');                 // => 'html'
+mime.extension('application/octet-stream');  // => 'bin'
+```
+
+### mime.charsets.lookup()
+
+Map mime-type to charset
+
+```js
+mime.charsets.lookup('text/plain');        // => 'UTF-8'
+```
+
+(The logic for charset lookups is pretty rudimentary.  Feel free to suggest improvements.)
+
+## API - Defining Custom Types
+
+Custom type mappings can be added on a per-project basis via the following APIs.
+
+### mime.define()
+
+Add custom mime/extension mappings
+
+```js
+mime.define({
+    'text/x-some-format': ['x-sf', 'x-sft', 'x-sfml'],
+    'application/x-my-type': ['x-mt', 'x-mtt'],
+    // etc ...
+});
+
+mime.lookup('x-sft');                 // => 'text/x-some-format'
+```
+
+The first entry in the extensions array is returned by `mime.extension()`. E.g.
+
+```js
+mime.extension('text/x-some-format'); // => 'x-sf'
+```
+
+### mime.load(filepath)
+
+Load mappings from an Apache ".types" format file
+
+```js
+mime.load('./my_project.types');
+```
+The .types file format is simple -  See the `types` dir for examples.
