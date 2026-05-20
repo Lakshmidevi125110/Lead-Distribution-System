@@ -4,13 +4,8 @@
 	"extends": "@ljharb",
 
 	"rules": {
-		"eqeqeq": ["error", "allow-null"],
-		"id-length": "off",
-		"new-cap": ["error", {
-			"capIsNewExceptions": [
-				"RequireObjectCoercible",
-				"ToObject",
-			],
-		}],
-	},
+		"max-statements-per-line": [2, { "max": 2 }],
+		"no-magic-numbers": 0,
+		"multiline-comment-style": 0,
+	}
 }
