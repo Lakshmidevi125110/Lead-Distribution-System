@@ -1,6 +1,7 @@
 /*!
- * body-parser
- * Copyright(c) 2014-2015 Douglas Christopher Wilson
+ * destroy
+ * Copyright(c) 2014 Jonathan Ong
+ * Copyright(c) 2015-2022 Douglas Christopher Wilson
  * MIT Licensed
  */
 
@@ -11,146 +12,198 @@
  * @private
  */
 
-var deprecate = require('depd')('body-parser')
-
-/**
- * Cache of loaded parsers.
- * @private
- */
-
-var parsers = Object.create(null)
-
-/**
- * @typedef Parsers
- * @type {function}
- * @property {function} json
- * @property {function} raw
- * @property {function} text
- * @property {function} urlencoded
- */
+var EventEmitter = require('events').EventEmitter
+var ReadStream = require('fs').ReadStream
+var Stream = require('stream')
+var Zlib = require('zlib')
 
 /**
  * Module exports.
- * @type {Parsers}
- */
-
-exports = module.exports = deprecate.function(bodyParser,
-  'bodyParser: use individual json/urlencoded middlewares')
-
-/**
- * JSON parser.
  * @public
  */
 
-Object.defineProperty(exports, 'json', {
-  configurable: true,
-  enumerable: true,
-  get: createParserGetter('json')
-})
+module.exports = destroy
 
 /**
- * Raw parser.
- * @public
- */
-
-Object.defineProperty(exports, 'raw', {
-  configurable: true,
-  enumerable: true,
-  get: createParserGetter('raw')
-})
-
-/**
- * Text parser.
- * @public
- */
-
-Object.defineProperty(exports, 'text', {
-  configurable: true,
-  enumerable: true,
-  get: createParserGetter('text')
-})
-
-/**
- * URL-encoded parser.
- * @public
- */
-
-Object.defineProperty(exports, 'urlencoded', {
-  configurable: true,
-  enumerable: true,
-  get: createParserGetter('urlencoded')
-})
-
-/**
- * Create a middleware to parse json and urlencoded bodies.
+ * Destroy the given stream, and optionally suppress any future `error` events.
  *
- * @param {object} [options]
- * @return {function}
- * @deprecated
+ * @param {object} stream
+ * @param {boolean} suppress
  * @public
  */
 
-function bodyParser (options) {
-  // use default type for parsers
-  var opts = Object.create(options || null, {
-    type: {
-      configurable: true,
-      enumerable: true,
-      value: undefined,
-      writable: true
+function destroy (stream, suppress) {
+  if (isFsReadStream(stream)) {
+    destroyReadStream(stream)
+  } else if (isZlibStream(stream)) {
+    destroyZlibStream(stream)
+  } else if (hasDestroy(stream)) {
+    stream.destroy()
+  }
+
+  if (isEventEmitter(stream) && suppress) {
+    stream.removeAllListeners('error')
+    stream.addListener('error', noop)
+  }
+
+  return stream
+}
+
+/**
+ * Destroy a ReadStream.
+ *
+ * @param {object} stream
+ * @private
+ */
+
+function destroyReadStream (stream) {
+  stream.destroy()
+
+  if (typeof stream.close === 'function') {
+    // node.js core bug work-around
+    stream.on('open', onOpenClose)
+  }
+}
+
+/**
+ * Close a Zlib stream.
+ *
+ * Zlib streams below Node.js 4.5.5 have a buggy implementation
+ * of .close() when zlib encountered an error.
+ *
+ * @param {object} stream
+ * @private
+ */
+
+function closeZlibStream (stream) {
+  if (stream._hadError === true) {
+    var prop = stream._binding === null
+      ? '_binding'
+      : '_handle'
+
+    stream[prop] = {
+      close: function () { this[prop] = null }
     }
-  })
+  }
 
-  var _urlencoded = exports.urlencoded(opts)
-  var _json = exports.json(opts)
+  stream.close()
+}
 
-  return function bodyParser (req, res, next) {
-    _json(req, res, function (err) {
-      if (err) return next(err)
-      _urlencoded(req, res, next)
-    })
+/**
+ * Destroy a Zlib stream.
+ *
+ * Zlib streams don't have a destroy function in Node.js 6. On top of that
+ * simply calling destroy on a zlib stream in Node.js 8+ will result in a
+ * memory leak. So until that is fixed, we need to call both close AND destroy.
+ *
+ * PR to fix memory leak: https://github.com/nodejs/node/pull/23734
+ *
+ * In Node.js 6+8, it's important that destroy is called before close as the
+ * stream would otherwise emit the error 'zlib binding closed'.
+ *
+ * @param {object} stream
+ * @private
+ */
+
+function destroyZlibStream (stream) {
+  if (typeof stream.destroy === 'function') {
+    // node.js core bug work-around
+    // istanbul ignore if: node.js 0.8
+    if (stream._binding) {
+      // node.js < 0.10.0
+      stream.destroy()
+      if (stream._processing) {
+        stream._needDrain = true
+        stream.once('drain', onDrainClearBinding)
+      } else {
+        stream._binding.clear()
+      }
+    } else if (stream._destroy && stream._destroy !== Stream.Transform.prototype._destroy) {
+      // node.js >= 12, ^11.1.0, ^10.15.1
+      stream.destroy()
+    } else if (stream._destroy && typeof stream.close === 'function') {
+      // node.js 7, 8
+      stream.destroyed = true
+      stream.close()
+    } else {
+      // fallback
+      // istanbul ignore next
+      stream.destroy()
+    }
+  } else if (typeof stream.close === 'function') {
+    // node.js < 8 fallback
+    closeZlibStream(stream)
   }
 }
 
 /**
- * Create a getter for loading a parser.
+ * Determine if stream has destroy.
  * @private
  */
 
-function createParserGetter (name) {
-  return function get () {
-    return loadParser(name)
-  }
+function hasDestroy (stream) {
+  return stream instanceof Stream &&
+    typeof stream.destroy === 'function'
 }
 
 /**
- * Load a parser module.
+ * Determine if val is EventEmitter.
  * @private
  */
 
-function loadParser (parserName) {
-  var parser = parsers[parserName]
+function isEventEmitter (val) {
+  return val instanceof EventEmitter
+}
 
-  if (parser !== undefined) {
-    return parser
+/**
+ * Determine if stream is fs.ReadStream stream.
+ * @private
+ */
+
+function isFsReadStream (stream) {
+  return stream instanceof ReadStream
+}
+
+/**
+ * Determine if stream is Zlib stream.
+ * @private
+ */
+
+function isZlibStream (stream) {
+  return stream instanceof Zlib.Gzip ||
+    stream instanceof Zlib.Gunzip ||
+    stream instanceof Zlib.Deflate ||
+    stream instanceof Zlib.DeflateRaw ||
+    stream instanceof Zlib.Inflate ||
+    stream instanceof Zlib.InflateRaw ||
+    stream instanceof Zlib.Unzip
+}
+
+/**
+ * No-op function.
+ * @private
+ */
+
+function noop () {}
+
+/**
+ * On drain handler to clear binding.
+ * @private
+ */
+
+// istanbul ignore next: node.js 0.8
+function onDrainClearBinding () {
+  this._binding.clear()
+}
+
+/**
+ * On open handler to close stream.
+ * @private
+ */
+
+function onOpenClose () {
+  if (typeof this.fd === 'number') {
+    // actually close down the fd
+    this.close()
   }
-
-  // this uses a switch for static require analysis
-  switch (parserName) {
-    case 'json':
-      parser = require('./lib/types/json')
-      break
-    case 'raw':
-      parser = require('./lib/types/raw')
-      break
-    case 'text':
-      parser = require('./lib/types/text')
-      break
-    case 'urlencoded':
-      parser = require('./lib/types/urlencoded')
-      break
-  }
-
-  // store to prevent invoking require()
-  return (parsers[parserName] = parser)
 }

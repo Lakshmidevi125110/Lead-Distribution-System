@@ -1,476 +1,645 @@
-# body-parser
+<div align="center">
+🎉 announcing <a href="https://github.com/dotenvx/dotenvx">dotenvx</a>. <em>run anywhere, multi-environment, encrypted envs</em>.
+</div>
 
-[![NPM Version][npm-version-image]][npm-url]
-[![NPM Downloads][npm-downloads-image]][npm-url]
-[![Build Status][ci-image]][ci-url]
-[![Test Coverage][coveralls-image]][coveralls-url]
-[![OpenSSF Scorecard Badge][ossf-scorecard-badge]][ossf-scorecard-visualizer]
+&nbsp;
 
-Node.js body parsing middleware.
+<div align="center">
 
-Parse incoming request bodies in a middleware before your handlers, available
-under the `req.body` property.
+**Special thanks to [our sponsors](https://github.com/sponsors/motdotla)**
 
-**Note** As `req.body`'s shape is based on user-controlled input, all
-properties and values in this object are untrusted and should be validated
-before trusting. For example, `req.body.foo.toString()` may fail in multiple
-ways, for example the `foo` property may not be there or may not be a string,
-and `toString` may not be a function and instead a string or other user input.
+<br>
+<a href="https://graphite.dev/?utm_source=github&utm_medium=repo&utm_campaign=dotenv"><img src="https://res.cloudinary.com/dotenv-org/image/upload/v1744035073/graphite_lgsrl8.gif" width="240" alt="Graphite" /></a>
+<br>
+<a href="https://graphite.dev/?utm_source=github&utm_medium=repo&utm_campaign=dotenv">
+  <b>Graphite is the AI developer productivity platform helping teams on GitHub ship higher quality software, faster.</b>
+</a>
+<hr>
+</div>
 
-[Learn about the anatomy of an HTTP transaction in Node.js](https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/).
+# dotenv [![NPM version](https://img.shields.io/npm/v/dotenv.svg?style=flat-square)](https://www.npmjs.com/package/dotenv)
 
-_This does not handle multipart bodies_, due to their complex and typically
-large nature. For multipart bodies, you may be interested in the following
-modules:
+<img src="https://raw.githubusercontent.com/motdotla/dotenv/master/dotenv.svg" alt="dotenv" align="right" width="200" />
 
-  * [busboy](https://www.npmjs.org/package/busboy#readme) and
-    [connect-busboy](https://www.npmjs.org/package/connect-busboy#readme)
-  * [multiparty](https://www.npmjs.org/package/multiparty#readme) and
-    [connect-multiparty](https://www.npmjs.org/package/connect-multiparty#readme)
-  * [formidable](https://www.npmjs.org/package/formidable#readme)
-  * [multer](https://www.npmjs.org/package/multer#readme)
+Dotenv is a zero-dependency module that loads environment variables from a `.env` file into [`process.env`](https://nodejs.org/docs/latest/api/process.html#process_process_env). Storing configuration in the environment separate from code is based on [The Twelve-Factor App](https://12factor.net/config) methodology.
 
-This module provides the following parsers:
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard)
+[![LICENSE](https://img.shields.io/github/license/motdotla/dotenv.svg)](LICENSE)
+[![codecov](https://codecov.io/gh/motdotla/dotenv-expand/graph/badge.svg?token=pawWEyaMfg)](https://codecov.io/gh/motdotla/dotenv-expand)
 
-  * [JSON body parser](#bodyparserjsonoptions)
-  * [Raw body parser](#bodyparserrawoptions)
-  * [Text body parser](#bodyparsertextoptions)
-  * [URL-encoded form body parser](#bodyparserurlencodedoptions)
+* [🌱 Install](#-install)
+* [🏗️ Usage (.env)](#%EF%B8%8F-usage)
+* [🌴 Multiple Environments 🆕](#-manage-multiple-environments)
+* [🚀 Deploying (encryption) 🆕](#-deploying)
+* [📚 Examples](#-examples)
+* [📖 Docs](#-documentation)
+* [❓ FAQ](#-faq)
+* [⏱️ Changelog](./CHANGELOG.md)
 
-Other body parsers you might be interested in:
+## 🌱 Install
 
-- [body](https://www.npmjs.org/package/body#readme)
-- [co-body](https://www.npmjs.org/package/co-body#readme)
+```bash
+npm install dotenv --save
+```
 
-## Installation
+You can also use an npm-compatible package manager like yarn, bun or pnpm:
 
+```bash
+yarn add dotenv
+```
+```bash
+bun add dotenv
+```
+```bash
+pnpm add dotenv
+```
+
+## 🏗️ Usage
+
+<a href="https://www.youtube.com/watch?v=YtkZR0NFd1g">
+<div align="right">
+<img src="https://img.youtube.com/vi/YtkZR0NFd1g/hqdefault.jpg" alt="how to use dotenv video tutorial" align="right" width="330" />
+<img src="https://simpleicons.vercel.app/youtube/ff0000" alt="youtube/@dotenvorg" align="right" width="24" />
+</div>
+</a>
+
+Create a `.env` file in the root of your project (if using a monorepo structure like `apps/backend/app.js`, put it in the root of the folder where your `app.js` process runs):
+
+```dosini
+S3_BUCKET="YOURS3BUCKET"
+SECRET_KEY="YOURSECRETKEYGOESHERE"
+```
+
+As early as possible in your application, import and configure dotenv:
+
+```javascript
+require('dotenv').config()
+console.log(process.env) // remove this after you've confirmed it is working
+```
+
+.. [or using ES6?](#how-do-i-use-dotenv-with-import)
+
+```javascript
+import 'dotenv/config'
+```
+
+That's it. `process.env` now has the keys and values you defined in your `.env` file:
+
+```javascript
+require('dotenv').config()
+// or import 'dotenv/config' if you're using ES6
+
+...
+
+s3.getBucketCors({Bucket: process.env.S3_BUCKET}, function(err, data) {})
+```
+
+### Multiline values
+
+If you need multiline variables, for example private keys, those are now supported (`>= v15.0.0`) with line breaks:
+
+```dosini
+PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
+...
+Kh9NV...
+...
+-----END RSA PRIVATE KEY-----"
+```
+
+Alternatively, you can double quote strings and use the `\n` character:
+
+```dosini
+PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\nKh9NV...\n-----END RSA PRIVATE KEY-----\n"
+```
+
+### Comments
+
+Comments may be added to your file on their own line or inline:
+
+```dosini
+# This is a comment
+SECRET_KEY=YOURSECRETKEYGOESHERE # comment
+SECRET_HASH="something-with-a-#-hash"
+```
+
+Comments begin where a `#` exists, so if your value contains a `#` please wrap it in quotes. This is a breaking change from `>= v15.0.0` and on.
+
+### Parsing
+
+The engine which parses the contents of your file containing environment variables is available to use. It accepts a String or Buffer and will return an Object with the parsed keys and values.
+
+```javascript
+const dotenv = require('dotenv')
+const buf = Buffer.from('BASIC=basic')
+const config = dotenv.parse(buf) // will return an object
+console.log(typeof config, config) // object { BASIC : 'basic' }
+```
+
+### Preload
+
+> Note: Consider using [`dotenvx`](https://github.com/dotenvx/dotenvx) instead of preloading. I am now doing (and recommending) so.
+>
+> It serves the same purpose (you do not need to require and load dotenv), adds better debugging, and works with ANY language, framework, or platform. – [motdotla](https://github.com/motdotla)
+
+You can use the `--require` (`-r`) [command line option](https://nodejs.org/api/cli.html#-r---require-module) to preload dotenv. By doing this, you do not need to require and load dotenv in your application code.
+
+```bash
+$ node -r dotenv/config your_script.js
+```
+
+The configuration options below are supported as command line arguments in the format `dotenv_config_<option>=value`
+
+```bash
+$ node -r dotenv/config your_script.js dotenv_config_path=/custom/path/to/.env dotenv_config_debug=true
+```
+
+Additionally, you can use environment variables to set configuration options. Command line arguments will precede these.
+
+```bash
+$ DOTENV_CONFIG_<OPTION>=value node -r dotenv/config your_script.js
+```
+
+```bash
+$ DOTENV_CONFIG_ENCODING=latin1 DOTENV_CONFIG_DEBUG=true node -r dotenv/config your_script.js dotenv_config_path=/custom/path/to/.env
+```
+
+### Variable Expansion
+
+You need to add the value of another variable in one of your variables? Use [dotenv-expand](https://github.com/motdotla/dotenv-expand).
+
+### Command Substitution
+
+Use [dotenvx](https://github.com/dotenvx/dotenvx) to use command substitution.
+
+Add the output of a command to one of your variables in your .env file.
+
+```ini
+# .env
+DATABASE_URL="postgres://$(whoami)@localhost/my_database"
+```
+```js
+// index.js
+console.log('DATABASE_URL', process.env.DATABASE_URL)
+```
 ```sh
-$ npm install body-parser
+$ dotenvx run --debug -- node index.js
+[dotenvx@0.14.1] injecting env (1) from .env
+DATABASE_URL postgres://yourusername@localhost/my_database
 ```
 
-## API
+### Syncing
+
+You need to keep `.env` files in sync between machines, environments, or team members? Use [dotenvx](https://github.com/dotenvx/dotenvx) to encrypt your `.env` files and safely include them in source control. This still subscribes to the twelve-factor app rules by generating a decryption key separate from code.
+
+### Multiple Environments
+
+Use [dotenvx](https://github.com/dotenvx/dotenvx) to generate `.env.ci`, `.env.production` files, and more.
+
+### Deploying
+
+You need to deploy your secrets in a cloud-agnostic manner? Use [dotenvx](https://github.com/dotenvx/dotenvx) to generate a private decryption key that is set on your production server.
+
+## 🌴 Manage Multiple Environments
+
+Use [dotenvx](https://github.com/dotenvx/dotenvx)
+
+Run any environment locally. Create a `.env.ENVIRONMENT` file and use `--env-file` to load it. It's straightforward, yet flexible.
+
+```bash
+$ echo "HELLO=production" > .env.production
+$ echo "console.log('Hello ' + process.env.HELLO)" > index.js
+
+$ dotenvx run --env-file=.env.production -- node index.js
+Hello production
+> ^^
+```
+
+or with multiple .env files
+
+```bash
+$ echo "HELLO=local" > .env.local
+$ echo "HELLO=World" > .env
+$ echo "console.log('Hello ' + process.env.HELLO)" > index.js
+
+$ dotenvx run --env-file=.env.local --env-file=.env -- node index.js
+Hello local
+```
+
+[more environment examples](https://dotenvx.com/docs/quickstart/environments)
+
+## 🚀 Deploying
+
+Use [dotenvx](https://github.com/dotenvx/dotenvx).
+
+Add encryption to your `.env` files with a single command. Pass the `--encrypt` flag.
+
+```
+$ dotenvx set HELLO Production --encrypt -f .env.production
+$ echo "console.log('Hello ' + process.env.HELLO)" > index.js
+
+$ DOTENV_PRIVATE_KEY_PRODUCTION="<.env.production private key>" dotenvx run -- node index.js
+[dotenvx] injecting env (2) from .env.production
+Hello Production
+```
+
+[learn more](https://github.com/dotenvx/dotenvx?tab=readme-ov-file#encryption)
+
+## 📚 Examples
+
+See [examples](https://github.com/dotenv-org/examples) of using dotenv with various frameworks, languages, and configurations.
+
+* [nodejs](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-nodejs)
+* [nodejs (debug on)](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-nodejs-debug)
+* [nodejs (override on)](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-nodejs-override)
+* [nodejs (processEnv override)](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-custom-target)
+* [esm](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-esm)
+* [esm (preload)](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-esm-preload)
+* [typescript](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-typescript)
+* [typescript parse](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-typescript-parse)
+* [typescript config](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-typescript-config)
+* [webpack](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-webpack)
+* [webpack (plugin)](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-webpack2)
+* [react](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-react)
+* [react (typescript)](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-react-typescript)
+* [express](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-express)
+* [nestjs](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-nestjs)
+* [fastify](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-fastify)
+
+## 📖 Documentation
+
+Dotenv exposes four functions:
+
+* `config`
+* `parse`
+* `populate`
+* `decrypt`
+
+### Config
+
+`config` will read your `.env` file, parse the contents, assign it to
+[`process.env`](https://nodejs.org/docs/latest/api/process.html#process_process_env),
+and return an Object with a `parsed` key containing the loaded content or an `error` key if it failed.
 
 ```js
-var bodyParser = require('body-parser')
+const result = dotenv.config()
+
+if (result.error) {
+  throw result.error
+}
+
+console.log(result.parsed)
 ```
 
-The `bodyParser` object exposes various factories to create middlewares. All
-middlewares will populate the `req.body` property with the parsed body when
-the `Content-Type` request header matches the `type` option, or an empty
-object (`{}`) if there was no body to parse, the `Content-Type` was not matched,
-or an error occurred.
-
-The various errors returned by this module are described in the
-[errors section](#errors).
-
-### bodyParser.json([options])
-
-Returns middleware that only parses `json` and only looks at requests where
-the `Content-Type` header matches the `type` option. This parser accepts any
-Unicode encoding of the body and supports automatic inflation of `gzip` and
-`deflate` encodings.
-
-A new `body` object containing the parsed data is populated on the `request`
-object after the middleware (i.e. `req.body`).
+You can additionally, pass options to `config`.
 
 #### Options
 
-The `json` function takes an optional `options` object that may contain any of
-the following keys:
+##### path
 
-##### inflate
+Default: `path.resolve(process.cwd(), '.env')`
 
-When set to `true`, then deflated (compressed) bodies will be inflated; when
-`false`, deflated bodies are rejected. Defaults to `true`.
+Specify a custom path if your file containing environment variables is located elsewhere.
 
-##### limit
+```js
+require('dotenv').config({ path: '/custom/path/to/.env' })
+```
 
-Controls the maximum request body size. If this is a number, then the value
-specifies the number of bytes; if it is a string, the value is passed to the
-[bytes](https://www.npmjs.com/package/bytes) library for parsing. Defaults
-to `'100kb'`.
+By default, `config` will look for a file called .env in the current working directory.
 
-##### reviver
+Pass in multiple files as an array, and they will be parsed in order and combined with `process.env` (or `option.processEnv`, if set). The first value set for a variable will win, unless the `options.override` flag is set, in which case the last value set will win.  If a value already exists in `process.env` and the `options.override` flag is NOT set, no changes will be made to that value. 
 
-The `reviver` option is passed directly to `JSON.parse` as the second
-argument. You can find more information on this argument
-[in the MDN documentation about JSON.parse](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter).
+```js  
+require('dotenv').config({ path: ['.env.local', '.env'] })
+```
 
-##### strict
+##### encoding
 
-When set to `true`, will only accept arrays and objects; when `false` will
-accept anything `JSON.parse` accepts. Defaults to `true`.
+Default: `utf8`
 
-##### type
+Specify the encoding of your file containing environment variables.
 
-The `type` option is used to determine what media type the middleware will
-parse. This option can be a string, array of strings, or a function. If not a
-function, `type` option is passed directly to the
-[type-is](https://www.npmjs.org/package/type-is#readme) library and this can
-be an extension name (like `json`), a mime type (like `application/json`), or
-a mime type with a wildcard (like `*/*` or `*/json`). If a function, the `type`
-option is called as `fn(req)` and the request is parsed if it returns a truthy
-value. Defaults to `application/json`.
+```js
+require('dotenv').config({ encoding: 'latin1' })
+```
 
-##### verify
+##### debug
 
-The `verify` option, if supplied, is called as `verify(req, res, buf, encoding)`,
-where `buf` is a `Buffer` of the raw request body and `encoding` is the
-encoding of the request. The parsing can be aborted by throwing an error.
+Default: `false`
 
-### bodyParser.raw([options])
+Turn on logging to help debug why certain keys or values are not being set as you expect.
 
-Returns middleware that parses all bodies as a `Buffer` and only looks at
-requests where the `Content-Type` header matches the `type` option. This
-parser supports automatic inflation of `gzip` and `deflate` encodings.
+```js
+require('dotenv').config({ debug: process.env.DEBUG })
+```
 
-A new `body` object containing the parsed data is populated on the `request`
-object after the middleware (i.e. `req.body`). This will be a `Buffer` object
-of the body.
+##### override
+
+Default: `false`
+
+Override any environment variables that have already been set on your machine with values from your .env file(s). If multiple files have been provided in `option.path` the override will also be used as each file is combined with the next. Without `override` being set, the first value wins. With `override` set the last value wins. 
+
+```js
+require('dotenv').config({ override: true })
+```
+
+##### processEnv
+
+Default: `process.env`
+
+Specify an object to write your environment variables to. Defaults to `process.env` environment variables.
+
+```js
+const myObject = {}
+require('dotenv').config({ processEnv: myObject })
+
+console.log(myObject) // values from .env
+console.log(process.env) // this was not changed or written to
+```
+
+### Parse
+
+The engine which parses the contents of your file containing environment
+variables is available to use. It accepts a String or Buffer and will return
+an Object with the parsed keys and values.
+
+```js
+const dotenv = require('dotenv')
+const buf = Buffer.from('BASIC=basic')
+const config = dotenv.parse(buf) // will return an object
+console.log(typeof config, config) // object { BASIC : 'basic' }
+```
 
 #### Options
 
-The `raw` function takes an optional `options` object that may contain any of
-the following keys:
+##### debug
 
-##### inflate
+Default: `false`
 
-When set to `true`, then deflated (compressed) bodies will be inflated; when
-`false`, deflated bodies are rejected. Defaults to `true`.
-
-##### limit
-
-Controls the maximum request body size. If this is a number, then the value
-specifies the number of bytes; if it is a string, the value is passed to the
-[bytes](https://www.npmjs.com/package/bytes) library for parsing. Defaults
-to `'100kb'`.
-
-##### type
-
-The `type` option is used to determine what media type the middleware will
-parse. This option can be a string, array of strings, or a function.
-If not a function, `type` option is passed directly to the
-[type-is](https://www.npmjs.org/package/type-is#readme) library and this
-can be an extension name (like `bin`), a mime type (like
-`application/octet-stream`), or a mime type with a wildcard (like `*/*` or
-`application/*`). If a function, the `type` option is called as `fn(req)`
-and the request is parsed if it returns a truthy value. Defaults to
-`application/octet-stream`.
-
-##### verify
-
-The `verify` option, if supplied, is called as `verify(req, res, buf, encoding)`,
-where `buf` is a `Buffer` of the raw request body and `encoding` is the
-encoding of the request. The parsing can be aborted by throwing an error.
-
-### bodyParser.text([options])
-
-Returns middleware that parses all bodies as a string and only looks at
-requests where the `Content-Type` header matches the `type` option. This
-parser supports automatic inflation of `gzip` and `deflate` encodings.
-
-A new `body` string containing the parsed data is populated on the `request`
-object after the middleware (i.e. `req.body`). This will be a string of the
-body.
-
-#### Options
-
-The `text` function takes an optional `options` object that may contain any of
-the following keys:
-
-##### defaultCharset
-
-Specify the default character set for the text content if the charset is not
-specified in the `Content-Type` header of the request. Defaults to `utf-8`.
-
-##### inflate
-
-When set to `true`, then deflated (compressed) bodies will be inflated; when
-`false`, deflated bodies are rejected. Defaults to `true`.
-
-##### limit
-
-Controls the maximum request body size. If this is a number, then the value
-specifies the number of bytes; if it is a string, the value is passed to the
-[bytes](https://www.npmjs.com/package/bytes) library for parsing. Defaults
-to `'100kb'`.
-
-##### type
-
-The `type` option is used to determine what media type the middleware will
-parse. This option can be a string, array of strings, or a function. If not
-a function, `type` option is passed directly to the
-[type-is](https://www.npmjs.org/package/type-is#readme) library and this can
-be an extension name (like `txt`), a mime type (like `text/plain`), or a mime
-type with a wildcard (like `*/*` or `text/*`). If a function, the `type`
-option is called as `fn(req)` and the request is parsed if it returns a
-truthy value. Defaults to `text/plain`.
-
-##### verify
-
-The `verify` option, if supplied, is called as `verify(req, res, buf, encoding)`,
-where `buf` is a `Buffer` of the raw request body and `encoding` is the
-encoding of the request. The parsing can be aborted by throwing an error.
-
-### bodyParser.urlencoded([options])
-
-Returns middleware that only parses `urlencoded` bodies and only looks at
-requests where the `Content-Type` header matches the `type` option. This
-parser accepts only UTF-8 encoding of the body and supports automatic
-inflation of `gzip` and `deflate` encodings.
-
-A new `body` object containing the parsed data is populated on the `request`
-object after the middleware (i.e. `req.body`). This object will contain
-key-value pairs, where the value can be a string or array (when `extended` is
-`false`), or any type (when `extended` is `true`).
-
-#### Options
-
-The `urlencoded` function takes an optional `options` object that may contain
-any of the following keys:
-
-##### extended
-
-The `extended` option allows to choose between parsing the URL-encoded data
-with the `querystring` library (when `false`) or the `qs` library (when
-`true`). The "extended" syntax allows for rich objects and arrays to be
-encoded into the URL-encoded format, allowing for a JSON-like experience
-with URL-encoded. For more information, please
-[see the qs library](https://www.npmjs.org/package/qs#readme).
-
-Defaults to `true`, but using the default has been deprecated. Please
-research into the difference between `qs` and `querystring` and choose the
-appropriate setting.
-
-##### inflate
-
-When set to `true`, then deflated (compressed) bodies will be inflated; when
-`false`, deflated bodies are rejected. Defaults to `true`.
-
-##### limit
-
-Controls the maximum request body size. If this is a number, then the value
-specifies the number of bytes; if it is a string, the value is passed to the
-[bytes](https://www.npmjs.com/package/bytes) library for parsing. Defaults
-to `'100kb'`.
-
-##### parameterLimit
-
-The `parameterLimit` option controls the maximum number of parameters that
-are allowed in the URL-encoded data. If a request contains more parameters
-than this value, a 413 will be returned to the client. Defaults to `1000`.
-
-##### type
-
-The `type` option is used to determine what media type the middleware will
-parse. This option can be a string, array of strings, or a function. If not
-a function, `type` option is passed directly to the
-[type-is](https://www.npmjs.org/package/type-is#readme) library and this can
-be an extension name (like `urlencoded`), a mime type (like
-`application/x-www-form-urlencoded`), or a mime type with a wildcard (like
-`*/x-www-form-urlencoded`). If a function, the `type` option is called as
-`fn(req)` and the request is parsed if it returns a truthy value. Defaults
-to `application/x-www-form-urlencoded`.
-
-##### verify
-
-The `verify` option, if supplied, is called as `verify(req, res, buf, encoding)`,
-where `buf` is a `Buffer` of the raw request body and `encoding` is the
-encoding of the request. The parsing can be aborted by throwing an error.
-
-#### depth
-
-The `depth` option is used to configure the maximum depth of the `qs` library when `extended` is `true`. This allows you to limit the amount of keys that are parsed and can be useful to prevent certain types of abuse. Defaults to `32`. It is recommended to keep this value as low as possible.
-
-## Errors
-
-The middlewares provided by this module create errors using the
-[`http-errors` module](https://www.npmjs.com/package/http-errors). The errors
-will typically have a `status`/`statusCode` property that contains the suggested
-HTTP response code, an `expose` property to determine if the `message` property
-should be displayed to the client, a `type` property to determine the type of
-error without matching against the `message`, and a `body` property containing
-the read body, if available.
-
-The following are the common errors created, though any error can come through
-for various reasons.
-
-### content encoding unsupported
-
-This error will occur when the request had a `Content-Encoding` header that
-contained an encoding but the "inflation" option was set to `false`. The
-`status` property is set to `415`, the `type` property is set to
-`'encoding.unsupported'`, and the `charset` property will be set to the
-encoding that is unsupported.
-
-### entity parse failed
-
-This error will occur when the request contained an entity that could not be
-parsed by the middleware. The `status` property is set to `400`, the `type`
-property is set to `'entity.parse.failed'`, and the `body` property is set to
-the entity value that failed parsing.
-
-### entity verify failed
-
-This error will occur when the request contained an entity that could not be
-failed verification by the defined `verify` option. The `status` property is
-set to `403`, the `type` property is set to `'entity.verify.failed'`, and the
-`body` property is set to the entity value that failed verification.
-
-### request aborted
-
-This error will occur when the request is aborted by the client before reading
-the body has finished. The `received` property will be set to the number of
-bytes received before the request was aborted and the `expected` property is
-set to the number of expected bytes. The `status` property is set to `400`
-and `type` property is set to `'request.aborted'`.
-
-### request entity too large
-
-This error will occur when the request body's size is larger than the "limit"
-option. The `limit` property will be set to the byte limit and the `length`
-property will be set to the request body's length. The `status` property is
-set to `413` and the `type` property is set to `'entity.too.large'`.
-
-### request size did not match content length
-
-This error will occur when the request's length did not match the length from
-the `Content-Length` header. This typically occurs when the request is malformed,
-typically when the `Content-Length` header was calculated based on characters
-instead of bytes. The `status` property is set to `400` and the `type` property
-is set to `'request.size.invalid'`.
-
-### stream encoding should not be set
-
-This error will occur when something called the `req.setEncoding` method prior
-to this middleware. This module operates directly on bytes only and you cannot
-call `req.setEncoding` when using this module. The `status` property is set to
-`500` and the `type` property is set to `'stream.encoding.set'`.
-
-### stream is not readable
-
-This error will occur when the request is no longer readable when this middleware
-attempts to read it. This typically means something other than a middleware from
-this module read the request body already and the middleware was also configured to
-read the same request. The `status` property is set to `500` and the `type`
-property is set to `'stream.not.readable'`.
-
-### too many parameters
-
-This error will occur when the content of the request exceeds the configured
-`parameterLimit` for the `urlencoded` parser. The `status` property is set to
-`413` and the `type` property is set to `'parameters.too.many'`.
-
-### unsupported charset "BOGUS"
-
-This error will occur when the request had a charset parameter in the
-`Content-Type` header, but the `iconv-lite` module does not support it OR the
-parser does not support it. The charset is contained in the message as well
-as in the `charset` property. The `status` property is set to `415`, the
-`type` property is set to `'charset.unsupported'`, and the `charset` property
-is set to the charset that is unsupported.
-
-### unsupported content encoding "bogus"
-
-This error will occur when the request had a `Content-Encoding` header that
-contained an unsupported encoding. The encoding is contained in the message
-as well as in the `encoding` property. The `status` property is set to `415`,
-the `type` property is set to `'encoding.unsupported'`, and the `encoding`
-property is set to the encoding that is unsupported.
-
-### The input exceeded the depth
-
-This error occurs when using `bodyParser.urlencoded` with the `extended` property set to `true` and the input exceeds the configured `depth` option. The `status` property is set to `400`. It is recommended to review the `depth` option and evaluate if it requires a higher value. When the `depth` option is set to `32` (default value), the error will not be thrown.
-
-## Examples
-
-### Express/Connect top-level generic
-
-This example demonstrates adding a generic JSON and URL-encoded parser as a
-top-level middleware, which will parse the bodies of all incoming requests.
-This is the simplest setup.
+Turn on logging to help debug why certain keys or values are not being set as you expect.
 
 ```js
-var express = require('express')
-var bodyParser = require('body-parser')
-
-var app = express()
-
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
-
-// parse application/json
-app.use(bodyParser.json())
-
-app.use(function (req, res) {
-  res.setHeader('Content-Type', 'text/plain')
-  res.write('you posted:\n')
-  res.end(JSON.stringify(req.body, null, 2))
-})
+const dotenv = require('dotenv')
+const buf = Buffer.from('hello world')
+const opt = { debug: true }
+const config = dotenv.parse(buf, opt)
+// expect a debug message because the buffer is not in KEY=VAL form
 ```
 
-### Express route-specific
+### Populate
 
-This example demonstrates adding body parsers specifically to the routes that
-need them. In general, this is the most recommended way to use body-parser with
-Express.
+The engine which populates the contents of your .env file to `process.env` is available for use. It accepts a target, a source, and options. This is useful for power users who want to supply their own objects.
+
+For example, customizing the source:
 
 ```js
-var express = require('express')
-var bodyParser = require('body-parser')
+const dotenv = require('dotenv')
+const parsed = { HELLO: 'world' }
 
-var app = express()
+dotenv.populate(process.env, parsed)
 
-// create application/json parser
-var jsonParser = bodyParser.json()
-
-// create application/x-www-form-urlencoded parser
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
-
-// POST /login gets urlencoded bodies
-app.post('/login', urlencodedParser, function (req, res) {
-  res.send('welcome, ' + req.body.username)
-})
-
-// POST /api/users gets JSON bodies
-app.post('/api/users', jsonParser, function (req, res) {
-  // create user in req.body
-})
+console.log(process.env.HELLO) // world
 ```
 
-### Change accepted type for parsers
-
-All the parsers accept a `type` option which allows you to change the
-`Content-Type` that the middleware will parse.
+For example, customizing the source AND target:
 
 ```js
-var express = require('express')
-var bodyParser = require('body-parser')
+const dotenv = require('dotenv')
+const parsed = { HELLO: 'universe' }
+const target = { HELLO: 'world' } // empty object
 
-var app = express()
+dotenv.populate(target, parsed, { override: true, debug: true })
 
-// parse various different custom JSON types as JSON
-app.use(bodyParser.json({ type: 'application/*+json' }))
-
-// parse some custom thing into a Buffer
-app.use(bodyParser.raw({ type: 'application/vnd.custom-type' }))
-
-// parse an HTML body into a string
-app.use(bodyParser.text({ type: 'text/html' }))
+console.log(target) // { HELLO: 'universe' }
 ```
 
-## License
+#### options
 
-[MIT](LICENSE)
+##### Debug
 
-[ci-image]: https://badgen.net/github/checks/expressjs/body-parser/master?label=ci
-[ci-url]: https://github.com/expressjs/body-parser/actions/workflows/ci.yml
-[coveralls-image]: https://badgen.net/coveralls/c/github/expressjs/body-parser/master
-[coveralls-url]: https://coveralls.io/r/expressjs/body-parser?branch=master
-[node-version-image]: https://badgen.net/npm/node/body-parser
-[node-version-url]: https://nodejs.org/en/download
-[npm-downloads-image]: https://badgen.net/npm/dm/body-parser
-[npm-url]: https://npmjs.org/package/body-parser
-[npm-version-image]: https://badgen.net/npm/v/body-parser
-[ossf-scorecard-badge]: https://api.scorecard.dev/projects/github.com/expressjs/body-parser/badge
-[ossf-scorecard-visualizer]: https://ossf.github.io/scorecard-visualizer/#/projects/github.com/expressjs/body-parser
+Default: `false`
+
+Turn on logging to help debug why certain keys or values are not being populated as you expect.
+
+##### override
+
+Default: `false`
+
+Override any environment variables that have already been set.
+
+## ❓ FAQ
+
+### Why is the `.env` file not loading my environment variables successfully?
+
+Most likely your `.env` file is not in the correct place. [See this stack overflow](https://stackoverflow.com/questions/42335016/dotenv-file-is-not-loading-environment-variables).
+
+Turn on debug mode and try again..
+
+```js
+require('dotenv').config({ debug: true })
+```
+
+You will receive a helpful error outputted to your console.
+
+### Should I commit my `.env` file?
+
+No. We **strongly** recommend against committing your `.env` file to version
+control. It should only include environment-specific values such as database
+passwords or API keys. Your production database should have a different
+password than your development database.
+
+### Should I have multiple `.env` files?
+
+We recommend creating one `.env` file per environment. Use `.env` for local/development, `.env.production` for production and so on. This still follows the twelve factor principles as each is attributed individually to its own environment. Avoid custom set ups that work in inheritance somehow (`.env.production` inherits values form `.env` for example). It is better to duplicate values if necessary across each `.env.environment` file.
+
+> In a twelve-factor app, env vars are granular controls, each fully orthogonal to other env vars. They are never grouped together as “environments”, but instead are independently managed for each deploy. This is a model that scales up smoothly as the app naturally expands into more deploys over its lifetime.
+>
+> – [The Twelve-Factor App](http://12factor.net/config)
+
+### What rules does the parsing engine follow?
+
+The parsing engine currently supports the following rules:
+
+- `BASIC=basic` becomes `{BASIC: 'basic'}`
+- empty lines are skipped
+- lines beginning with `#` are treated as comments
+- `#` marks the beginning of a comment (unless when the value is wrapped in quotes)
+- empty values become empty strings (`EMPTY=` becomes `{EMPTY: ''}`)
+- inner quotes are maintained (think JSON) (`JSON={"foo": "bar"}` becomes `{JSON:"{\"foo\": \"bar\"}"`)
+- whitespace is removed from both ends of unquoted values (see more on [`trim`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim)) (`FOO=  some value  ` becomes `{FOO: 'some value'}`)
+- single and double quoted values are escaped (`SINGLE_QUOTE='quoted'` becomes `{SINGLE_QUOTE: "quoted"}`)
+- single and double quoted values maintain whitespace from both ends (`FOO="  some value  "` becomes `{FOO: '  some value  '}`)
+- double quoted values expand new lines (`MULTILINE="new\nline"` becomes
+
+```
+{MULTILINE: 'new
+line'}
+```
+
+- backticks are supported (`` BACKTICK_KEY=`This has 'single' and "double" quotes inside of it.` ``)
+
+### What happens to environment variables that were already set?
+
+By default, we will never modify any environment variables that have already been set. In particular, if there is a variable in your `.env` file which collides with one that already exists in your environment, then that variable will be skipped.
+
+If instead, you want to override `process.env` use the `override` option.
+
+```javascript
+require('dotenv').config({ override: true })
+```
+
+### How come my environment variables are not showing up for React?
+
+Your React code is run in Webpack, where the `fs` module or even the `process` global itself are not accessible out-of-the-box. `process.env` can only be injected through Webpack configuration.
+
+If you are using [`react-scripts`](https://www.npmjs.com/package/react-scripts), which is distributed through [`create-react-app`](https://create-react-app.dev/), it has dotenv built in but with a quirk. Preface your environment variables with `REACT_APP_`. See [this stack overflow](https://stackoverflow.com/questions/42182577/is-it-possible-to-use-dotenv-in-a-react-project) for more details.
+
+If you are using other frameworks (e.g. Next.js, Gatsby...), you need to consult their documentation for how to inject environment variables into the client.
+
+### Can I customize/write plugins for dotenv?
+
+Yes! `dotenv.config()` returns an object representing the parsed `.env` file. This gives you everything you need to continue setting values on `process.env`. For example:
+
+```js
+const dotenv = require('dotenv')
+const variableExpansion = require('dotenv-expand')
+const myEnv = dotenv.config()
+variableExpansion(myEnv)
+```
+
+### How do I use dotenv with `import`?
+
+Simply..
+
+```javascript
+// index.mjs (ESM)
+import 'dotenv/config' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+import express from 'express'
+```
+
+A little background..
+
+> When you run a module containing an `import` declaration, the modules it imports are loaded first, then each module body is executed in a depth-first traversal of the dependency graph, avoiding cycles by skipping anything already executed.
+>
+> – [ES6 In Depth: Modules](https://hacks.mozilla.org/2015/08/es6-in-depth-modules/)
+
+What does this mean in plain language? It means you would think the following would work but it won't.
+
+`errorReporter.mjs`:
+```js
+class Client {
+  constructor (apiKey) {
+    console.log('apiKey', apiKey)
+
+    this.apiKey = apiKey
+  }
+}
+
+export default new Client(process.env.API_KEY)
+```
+`index.mjs`:
+```js
+// Note: this is INCORRECT and will not work
+import * as dotenv from 'dotenv'
+dotenv.config()
+
+import errorReporter from './errorReporter.mjs' // process.env.API_KEY will be blank!
+```
+
+`process.env.API_KEY` will be blank.
+
+Instead, `index.mjs` should be written as..
+
+```js
+import 'dotenv/config'
+
+import errorReporter from './errorReporter.mjs'
+```
+
+Does that make sense? It's a bit unintuitive, but it is how importing of ES6 modules work. Here is a [working example of this pitfall](https://github.com/dotenv-org/examples/tree/master/usage/dotenv-es6-import-pitfall).
+
+There are two alternatives to this approach:
+
+1. Preload dotenv: `node --require dotenv/config index.js` (_Note: you do not need to `import` dotenv with this approach_)
+2. Create a separate file that will execute `config` first as outlined in [this comment on #133](https://github.com/motdotla/dotenv/issues/133#issuecomment-255298822)
+
+### Why am I getting the error `Module not found: Error: Can't resolve 'crypto|os|path'`?
+
+You are using dotenv on the front-end and have not included a polyfill. Webpack < 5 used to include these for you. Do the following:
+
+```bash
+npm install node-polyfill-webpack-plugin
+```
+
+Configure your `webpack.config.js` to something like the following.
+
+```js
+require('dotenv').config()
+
+const path = require('path');
+const webpack = require('webpack')
+
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin')
+
+module.exports = {
+  mode: 'development',
+  entry: './src/index.ts',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
+  plugins: [
+    new NodePolyfillPlugin(),
+    new webpack.DefinePlugin({
+      'process.env': {
+        HELLO: JSON.stringify(process.env.HELLO)
+      }
+    }),
+  ]
+};
+```
+
+Alternatively, just use [dotenv-webpack](https://github.com/mrsteele/dotenv-webpack) which does this and more behind the scenes for you.
+
+### What about variable expansion?
+
+Try [dotenv-expand](https://github.com/motdotla/dotenv-expand)
+
+### What about syncing and securing .env files?
+
+Use [dotenvx](https://github.com/dotenvx/dotenvx)
+
+### What if I accidentally commit my `.env` file to code?
+
+Remove it, [remove git history](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository) and then install the [git pre-commit hook](https://github.com/dotenvx/dotenvx#pre-commit) to prevent this from ever happening again. 
+
+```
+brew install dotenvx/brew/dotenvx
+dotenvx precommit --install
+```
+
+### How can I prevent committing my `.env` file to a Docker build?
+
+Use the [docker prebuild hook](https://dotenvx.com/docs/features/prebuild).
+
+```bash
+# Dockerfile
+...
+RUN curl -fsS https://dotenvx.sh/ | sh
+...
+RUN dotenvx prebuild
+CMD ["dotenvx", "run", "--", "node", "index.js"]
+```
+
+## Contributing Guide
+
+See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## CHANGELOG
+
+See [CHANGELOG.md](CHANGELOG.md)
+
+## Who's using dotenv?
+
+[These npm modules depend on it.](https://www.npmjs.com/browse/depended/dotenv)
+
+Projects that expand it often use the [keyword "dotenv" on npm](https://www.npmjs.com/search?q=keywords:dotenv).
