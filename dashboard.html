@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monitoring Portal • DATA_ENGINE_PRO</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Tailwind CSS (Tailwind Play CDN for dynamic design) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #0a0a0c;
+        color: #e2e2e7;
+        font-family: 'Inter', sans-serif;
+      }
+      /* Pulsing Dot animation */
+      .dot-pulse {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        animation: pulsing 1.6s infinite cubic-bezier(0.66, 0, 0, 1);
+      }
+      @keyframes pulsing {
+        to {
+          box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+        }
+      }
+      /* Card Flash glow keyframe */
+      @keyframes greenGlow {
+        0% { box-shadow: 0 0 0px rgba(16, 185, 129, 0); }
+        30% { box-shadow: 0 0 16px rgba(16, 185, 129, 0.45); }
+        100% { box-shadow: 0 0 0px rgba(16, 185, 129, 0); }
+      }
+      .card-flash {
+        animation: greenGlow 1.2s ease-out;
+      }
+    </style>
+  </head>
+  <body class="min-h-full flex flex-col justify-between overflow-x-hidden">
+    
+    <!-- Token Overlay Request Modal -->
+    <div id="auth-modal" class="fixed inset-0 bg-[#050507]/90 z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-[#0c0c0f] border border-[#26262a] rounded-xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+        <div class="text-center space-y-2">
+          <div class="inline-flex items-center justify-center w-10 h-10 bg-indigo-950 text-indigo-400 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          </div>
+          <h3 class="text-base font-bold text-white">Administrative Key Code</h3>
+          <p class="text-xs text-[#71717a]">Enter the ADMIN_TOKEN from your server configuration to access state.</p>
+        </div>
+        <div class="space-y-3">
+          <input type="password" id="admin-token-input" placeholder="Enter ADMIN_TOKEN..." class="w-full h-11 px-4 rounded-lg bg-[#0f0f12] border border-[#26262a] text-xs font-mono text-white focus:border-indigo-500 focus:outline-none" onkeydown="if(event.key === 'Enter') authenticateDashboard()" />
+          <button onclick="authenticateDashboard()" class="w-full h-11 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold uppercase tracking-widest text-white rounded-lg transition-colors cursor-pointer">
+            Validate Key
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Workspace Frame -->
+    <div class="flex-1 flex flex-col">
+      <!-- Header -->
+      <header class="h-16 border-b border-[#26262a] flex items-center justify-between px-6 bg-[#0f0f12]">
+        <div class="flex items-center gap-4">
+          <div class="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-sm font-semibold tracking-tight uppercase">DATA_ENGINE_PRO</h1>
+            <p class="text-[10px] text-indigo-400 font-mono">v1.2.9 • SYSTEM_MONITOR</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+          <div class="hidden md:flex gap-4">
+            <div class="text-right">
+              <p class="text-[9px] text-[#71717a] uppercase tracking-wider font-mono">LAST_UPDATED</p>
+              <p id="timestamp-clock" class="text-xs font-mono font-medium text-[#e2e2e7]">--:--:--</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-1.5 bg-[#0c0c0f] border border-[#26262a] rounded-lg">
+            <div id="status-pulse" class="w-2 h-2 rounded-full bg-red-500"></div>
+            <span id="status-label" class="text-[10px] font-mono font-medium tracking-tight text-[#a1a1aa] uppercase">OFFLINE</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Panel area -->
+      <main class="flex-1 max-w-7xl w-full mx-auto p-6 md:p-8 space-y-8">
+        
+        <!-- Live Statistics Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Total Leads -->
+          <div class="bg-[#0c0c0f] border border-[#26262a] p-5 rounded-lg space-y-2">
+            <p class="text-[10px] uppercase font-semibold text-[#71717a] tracking-wider font-mono">TOTAL_SYSTEM_LEADS</p>
+            <div class="flex items-baseline gap-2">
+              <span id="stat-total-leads" class="text-2xl font-bold font-mono text-white">0</span>
+              <span class="text-[10px] text-indigo-400 font-mono">CAPTURED</span>
+            </div>
+          </div>
+          <!-- Active Providers -->
+          <div class="bg-[#0c0c0f] border border-[#26262a] p-5 rounded-lg space-y-2">
+            <p class="text-[10px] uppercase font-semibold text-[#71717a] tracking-wider font-mono">ACTIVE_PARTNERS</p>
+            <div class="flex items-baseline gap-2">
+              <span id="stat-active" class="text-2xl font-bold font-mono text-emerald-400">0</span>
+              <span class="text-[10px] text-[#a1a1aa] font-mono">ONLINE</span>
+            </div>
+          </div>
+          <!-- Providers at Quota -->
+          <div class="bg-[#0c0c0f] border border-[#26262a] p-5 rounded-lg space-y-2">
+            <p class="text-[10px] uppercase font-semibold text-[#71717a] tracking-wider font-mono">EXHAUSTED_QUOTAS</p>
+            <div class="flex items-baseline gap-2">
+              <span id="stat-quota-warn" class="text-2xl font-bold font-mono text-amber-500">0</span>
+              <span class="text-[10px] text-[#71717a] font-mono">AT_CRITICAL</span>
+            </div>
+          </div>
+          <!-- Round Robin State -->
+          <div class="bg-[#0c0c0f] border border-[#26262a] p-5 rounded-lg space-y-2">
+            <p class="text-[10px] uppercase font-semibold text-[#71717a] tracking-wider font-mono">ACTIVE_ENGINE_SEEDS</p>
+            <div class="flex items-baseline gap-2">
+              <span id="stat-allocation" class="text-2xl font-bold font-mono text-indigo-400">0</span>
+              <span class="text-[10px] text-[#a1a1aa] font-mono">LOADED</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Providers Dashboard Grid -->
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <h2 class="text-xs font-bold font-mono uppercase text-[#71717a] tracking-widest flex items-center gap-2">
+              <span>● ACTIVE_PARTNERS_REGISTRY</span>
+            </h2>
+            <button onclick="localStorage.removeItem('admin_token'); window.location.reload();" class="text-[10px] font-mono text-[#71717a] hover:text-red-400 transition-colors cursor-pointer">
+              [DISCONNECT_KEY]
+            </button>
+          </div>
+          
+          <div id="provider-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <!-- Simulated Loading Placeholder state -->
+            <div class="lg:col-span-4 text-center py-12 text-[#71717a] font-mono">
+              Loading Registry Registry...
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom details table -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
+          <!-- Recent Leads generally -->
+          <div class="lg:col-span-2 bg-[#0c0c0f] border border-[#26262a] rounded-lg p-5 space-y-4 flex flex-col justify-between">
+            <div class="space-y-1">
+              <h3 class="text-xs font-semibold font-mono text-white uppercase tracking-wider">&gt; GENERAL_STREAM_LEADS (LAST 10)</h3>
+              <p class="text-[10px] text-[#71717a]">Live feed of incoming inquiries processed by the engine.</p>
+            </div>
+            <div class="overflow-x-auto pt-2">
+              <table class="w-full text-left text-xs text-[#a1a1aa] border-collapse">
+                <thead>
+                  <tr class="border-b border-[#26262a] text-[#71717a] font-mono text-[9px] uppercase tracking-wider">
+                    <th class="pb-2">ID</th>
+                    <th class="pb-2">CUSTOMER</th>
+                    <th class="pb-2">SERVICE</th>
+                    <th class="pb-2">LOCATION</th>
+                    <th class="pb-2 text-right">DATE</th>
+                  </tr>
+                </thead>
+                <tbody id="leads-list-body" class="font-mono divide-y divide-[#1e1e24]/40">
+                  <tr>
+                    <td colspan="5" class="py-4 text-center text-[#52525b]">No inquiries captured.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Allocation Round Robin States -->
+          <div class="bg-[#0c0c0f] border border-[#26262a] rounded-lg p-5 space-y-4">
+            <div class="space-y-1">
+              <h3 class="text-xs font-semibold font-mono text-white uppercase tracking-wider">&gt; POOL_ROUND_ROBIN_INDEX</h3>
+              <p class="text-[10px] text-[#71717a]">Round-robin offsets stored per allocation cluster.</p>
+            </div>
+            
+            <div class="space-y-3 font-mono pt-2" id="allocation-state-container">
+              <!-- States appended here -->
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- Bottom Status Bar -->
+    <footer class="h-10 bg-[#0c0c0f] border-t border-[#26262a] px-6 flex items-center justify-between text-[11px] text-[#71717a] font-mono">
+      <div class="flex gap-4 items-center">
+        <span>Files Generated: 5/5</span>
+        <span class="text-indigo-400">Engine Stable</span>
+      </div>
+      <a href="/test-tools" class="hover:text-indigo-400 hover:underline transition-all">Developer Test Workbench &rarr;</a>
+    </footer>
+
+    <script>
+      let eventSource = null;
+      let existingProvidersState = {}; // Save current count to identify flashes
+
+      // Boot up the system
+      document.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('admin_token');
+        if (!token) {
+          showAuthModal();
+        } else {
+          loadDashboardData();
+          initializeSSE();
+        }
+
+        // Live status clock
+        setInterval(() => {
+          const now = new Date();
+          document.getElementById('timestamp-clock').textContent = now.toTimeString().split(' ')[0];
+        }, 1000);
+      });
+
+      function showAuthModal() {
+        document.getElementById('auth-modal').classList.remove('hidden');
+      }
+
+      function hideAuthModal() {
+        document.getElementById('auth-modal').classList.add('hidden');
+      }
+
+      function authenticateDashboard() {
+        const input = document.getElementById('admin-token-input').value.trim();
+        if (input) {
+          localStorage.setItem('admin_token', input);
+          hideAuthModal();
+          loadDashboardData();
+          initializeSSE();
+        }
+      }
+
+      // Fetch dashboard fresh data
+      async function loadDashboardData() {
+        const token = localStorage.getItem('admin_token');
+        if (!token) return;
+
+        try {
+          const response = await fetch('/api/dashboard', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('admin_token');
+            showAuthModal();
+            return;
+          }
+
+          if (!response.ok) {
+            throw new Error(`State error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          renderDashboard(data);
+
+        } catch (err) {
+          console.error('[Dashboard fetch err]:', err);
+        }
+      }
+
+      // Live SSE updates
+      function initializeSSE() {
+        if (eventSource) {
+          eventSource.close();
+        }
+
+        eventSource = new EventSource('/api/events');
+
+        eventSource.onopen = () => {
+          updateStatusIndicator(true);
+        };
+
+        eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'connected') {
+              console.log('SSE Pipeline Established.');
+            } else if (data.type === 'lead_assigned' || data.type === 'quota_reset') {
+              loadDashboardData();
+            }
+          } catch (err) {
+            console.error('SSE Message parsing failed.', err);
+          }
+        };
+
+        eventSource.onerror = (err) => {
+          console.error('SSE Connection lost. Retrying in 3s...');
+          updateStatusIndicator(false);
+          eventSource.close();
+          setTimeout(initializeSSE, 3000); // Retry after 3 seconds
+        };
+      }
+
+      function updateStatusIndicator(isOnline) {
+        const pulse = document.getElementById('status-pulse');
+        const label = document.getElementById('status-label');
+
+        if (isOnline) {
+          pulse.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 dot-pulse';
+          label.textContent = 'ONLINE';
+          label.className = 'text-[10px] font-mono font-medium tracking-tight text-emerald-400 uppercase';
+        } else {
+          pulse.className = 'w-2.5 h-2.5 rounded-full bg-red-500';
+          label.textContent = 'RECONN...';
+          label.className = 'text-[10px] font-mono font-medium tracking-tight text-red-400 uppercase';
+        }
+      }
+
+      function renderDashboard(data) {
+        // Redraw stats
+        document.getElementById('stat-total-leads').textContent = data.total_leads;
+        document.getElementById('stat-active').textContent = data.providers ? data.providers.length : 0;
+        document.getElementById('stat-allocation').textContent = data.allocation_state ? data.allocation_state.length : 0;
+
+        let quotaWarnCount = 0;
+        const grid = document.getElementById('provider-grid');
+        grid.innerHTML = '';
+
+        // Provider rendering loop
+        if (data.providers && data.providers.length > 0) {
+          data.providers.forEach(provider => {
+            const prevCount = existingProvidersState[provider.id] || 0;
+            const assignedDiff = provider.assigned_count - prevCount;
+            existingProvidersState[provider.id] = provider.assigned_count;
+
+            const fillPercent = (provider.remaining_quota / provider.monthly_quota) * 100;
+            let barColor = 'bg-[#3fb950]'; // Green
+
+            if (provider.remaining_quota === 0) {
+              quotaWarnCount++;
+            }
+
+            if (fillPercent < 30) {
+              barColor = 'bg-[#f85149]'; // Red
+            } else if (fillPercent < 60) {
+              barColor = 'bg-[#d29922]'; // Yellow
+            }
+
+            // Generate card DOM
+            const card = document.createElement('div');
+            card.id = `provider-card-${provider.id}`;
+            card.className = `bg-[#0c0c0f] border border-[#26262a] rounded-lg p-5 space-y-4 relative ${assignedDiff > 0 ? 'card-flash' : ''}`;
+            
+            let recentAssignmentsContent = `<p class="text-[10px] text-[#52525b] font-mono">No recent assignments.</p>`;
+            if (provider.recent_leads && provider.recent_leads.length > 0) {
+              recentAssignmentsContent = provider.recent_leads.map(lead => `
+                <div class="border-t border-[#1e1e24]/40 pt-1.5 flex justify-between mt-1.5 text-[10px]">
+                  <div class="truncate pr-2">
+                    <span class="text-white font-medium">${lead.customer_name}</span>
+                    <span class="text-[#71717a] font-mono"> (${lead.city})</span>
+                  </div>
+                  <span class="text-indigo-400 shrink-0 font-mono">L#${lead.lead_id}</span>
+                </div>
+              `).join('');
+            }
+
+            card.innerHTML = `
+              <div class="flex items-start justify-between">
+                <div>
+                  <h3 class="text-sm font-bold text-white font-mono shrink-0">${provider.name}</h3>
+                  <p class="text-[10px] text-[#71717a] font-mono">ID: PROVIDER_0${provider.id}</p>
+                </div>
+                <span class="text-[9px] font-mono px-1.5 py-0.5 bg-[#0e1017] border border-[#26262a] rounded text-[#71717a]">
+                  PARTNER
+                </span>
+              </div>
+
+              <!-- Quota and indicators -->
+              <div class="space-y-1.5">
+                <div class="flex justify-between text-xs font-mono">
+                  <span class="text-[#71717a]">QUOTA:</span>
+                  <span class="text-white font-semibold">${provider.remaining_quota} / ${provider.monthly_quota}</span>
+                </div>
+                <div class="w-full h-1.5 bg-[#16161a] rounded-full overflow-hidden border border-[#26262a]/40">
+                  <div class="${barColor} h-full transition-all duration-500" style="width: ${Math.max(0, Math.min(100, fillPercent))}%;"></div>
+                </div>
+                <div class="flex justify-between text-[11px] font-mono text-[#a1a1aa] pt-1">
+                  <span>Total Jobs:</span>
+                  <span class="text-white">${provider.assigned_count}</span>
+                </div>
+              </div>
+
+              <!-- Latest Jobs segment -->
+              <div class="pt-2 text-xs">
+                <p class="text-[10px] uppercase font-mono font-semibold text-[#71717a] tracking-wider mb-2">Recent assignments</p>
+                <div class="space-y-1">
+                  ${recentAssignmentsContent}
+                </div>
+              </div>
+            `;
+
+            grid.appendChild(card);
+          });
+        } else {
+          grid.innerHTML = `<div class="lg:col-span-4 text-center py-12 text-[#71717a] font-mono">No providers registered.</div>`;
+        }
+
+        // Update warn stats count
+        document.getElementById('stat-quota-warn').textContent = quotaWarnCount;
+
+        // Render Recent general Leads Table
+        const listBody = document.getElementById('leads-list-body');
+        listBody.innerHTML = '';
+        if (data.recent_leads && data.recent_leads.length > 0) {
+          data.recent_leads.forEach(lead => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-[#16161a]/40 select-none';
+            const formattedDate = new Date(lead.created_at).toLocaleTimeString();
+            
+            row.innerHTML = `
+              <td class="py-2.5 text-indigo-400 font-bold">L#${lead.id}</td>
+              <td class="py-2.5 text-white font-semibold truncate max-w-[120px]">${lead.customer_name}</td>
+              <td class="py-2.5 text-[#a1a1aa]">${lead.service_name}</td>
+              <td class="py-2.5 text-[#71717a]">${lead.city}</td>
+              <td class="py-2.5 text-right text-[#52525b] text-[10px] shrink-0">${formattedDate}</td>
+            `;
+            listBody.appendChild(row);
+          });
+        } else {
+          listBody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-[#52525b]">No inquiries captured.</td></tr>`;
+        }
+
+        // Render Allocation Pointer State Table
+        const arrContainer = document.getElementById('allocation-state-container');
+        arrContainer.innerHTML = '';
+        if (data.allocation_state && data.allocation_state.length > 0) {
+          data.allocation_state.forEach(state => {
+            const div = document.createElement('div');
+            div.className = 'bg-[#16161a] border border-[#26262a] p-3 rounded-lg flex justify-between items-center text-xs';
+            div.innerHTML = `
+              <div>
+                <p class="text-white font-bold leading-none">${state.service_name}</p>
+                <p class="text-[9px] text-[#71717a] mt-1 font-mono uppercase">ID: ${state.service_id}</p>
+              </div>
+              <div class="text-right">
+                <div class="text-indigo-400 font-mono font-bold text-xs">[INDEX_PTR: ${state.last_provider_index}]</div>
+                <div class="text-[9px] text-[#525252] mt-0.5">Updated: ${new Date(state.updated_at).toLocaleTimeString()}</div>
+              </div>
+            `;
+            arrContainer.appendChild(div);
+          });
+        } else {
+          arrContainer.innerHTML = `<div class="text-center py-4 text-[#71717a] text-xs font-mono">No allocation states loaded.</div>`;
+        }
+      }
+    </script>
+  </body>
+</html>

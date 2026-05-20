@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Request Service • DATA_ENGINE_PRO</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <!-- Tailwind CSS (Tailwind Play CDN for seamless dynamic layout in AI Studio) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['DM Sans', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #0a0a0c;
+        color: #e2e2e7;
+        font-family: 'DM Sans', sans-serif;
+      }
+      /* Soft focus ring animation filter */
+      input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 12px rgba(79, 70, 229, 0.25);
+      }
+    </style>
+  </head>
+  <body class="min-h-full flex flex-col justify-between py-12 px-4 sm:px-6 lg:px-8">
+    <div id="main-container" class="max-w-md w-full mx-auto space-y-8">
+      
+      <!-- Brand Header -->
+      <div class="text-center space-y-3">
+        <div class="inline-flex items-center justify-center w-12 h-12 bg-indigo-600 rounded-lg shadow-xl shadow-indigo-900/40">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold tracking-tight text-white">Request Service</h2>
+        <p class="text-sm text-[#71717a]">
+          Submit your requirements to connect with verified providers instantly.
+        </p>
+      </div>
+
+      <!-- Main Interactive Box -->
+      <div class="bg-[#0c0c0f] border border-[#26262a] rounded-xl p-8 shadow-2xl space-y-6" id="card-body">
+        
+        <!-- Error Banner (Client side) -->
+        <div id="error-banner" class="hidden flex items-start gap-3 bg-red-950/40 border border-red-800/80 p-4 rounded-lg text-sm text-red-200">
+          <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+          </svg>
+          <div class="flex-1">
+            <h4 class="font-semibold" id="error-title">Submission Error</h4>
+            <p id="error-msg" class="text-xs text-red-300 mt-1"></p>
+          </div>
+          <button onclick="hideError()" class="text-red-400 hover:text-white transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <form id="lead-form" class="space-y-5" onsubmit="submitForm(event)">
+          <!-- Customer Name -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#a1a1aa]" for="name">Your Name</label>
+            <input type="text" id="name" required class="w-full h-12 px-4 rounded-lg bg-[#0f0f12] border border-[#26262a] text-sm text-white transition-all duration-200" placeholder="e.g. Liam Sterling" />
+          </div>
+
+          <!-- Phone Number -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#a1a1aa]" for="phone">Phone Number</label>
+            <input type="tel" id="phone" required class="w-full h-12 px-4 rounded-lg bg-[#0f0f12] border border-[#26262a] text-sm text-white transition-all duration-200" placeholder="e.g. +44 7911 123456" />
+          </div>
+
+          <!-- City -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#a1a1aa]" for="city">City Location</label>
+            <input type="text" id="city" required class="w-full h-12 px-4 rounded-lg bg-[#0f0f12] border border-[#26262a] text-sm text-white transition-all duration-200" placeholder="e.g. Manchester" />
+          </div>
+
+          <!-- Service Selection -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#a1a1aa]" for="service_id">Requested Service</label>
+            <select id="service_id" required class="w-full h-12 px-4 rounded-lg bg-[#0f0f12] border border-[#26262a] text-sm text-white transition-all duration-200">
+              <option value="" disabled selected>Select an option...</option>
+              <option value="1">Service 1 (Provider 1 Mandatory)</option>
+              <option value="2">Service 2 (Provider 5 Mandatory)</option>
+              <option value="3">Service 3 (Providers 1 & 4 Mandatory)</option>
+            </select>
+          </div>
+
+          <!-- Description -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-[#a1a1aa]" for="description">Additional Notes (Optional)</label>
+            <textarea id="description" rows="3" class="w-full p-4 rounded-lg bg-[#0f0f12] border border-[#26262a] text-sm text-white transition-all duration-200 placeholder-[#52525b]" placeholder="Brief description of requirements..."></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="submit-btn" class="w-full h-[52px] bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800 disabled:opacity-50 text-white uppercase text-xs font-bold tracking-widest rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2">
+            <span>Submit Request</span>
+            <svg id="spinner" class="hidden w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </form>
+      </div>
+
+      <!-- Navigation link -->
+      <div class="text-center pt-2">
+        <a href="/dashboard" class="text-xs text-[#71717a] hover:text-indigo-400 transition-colors font-mono tracking-tight">
+          Access Admin Dashboard &rarr;
+        </a>
+      </div>
+    </div>
+
+    <!-- Bottom Status Bar to align with layout -->
+    <footer class="text-center text-[10px] text-[#525252] font-mono mt-8">
+      DATA_ENGINE_PRO • SECURE ALLOCATION ENGINE
+    </footer>
+
+    <script>
+      function hideError() {
+        document.getElementById('error-banner').classList.add('hidden');
+      }
+
+      async function submitForm(e) {
+        e.preventDefault();
+        hideError();
+
+        const form = document.getElementById('lead-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const spinner = document.getElementById('spinner');
+
+        const payload = {
+          name: document.getElementById('name').value.trim(),
+          phone: document.getElementById('phone').value.trim(),
+          city: document.getElementById('city').value.trim(),
+          service_id: document.getElementById('service_id').value,
+          description: document.getElementById('description').value.trim()
+        };
+
+        // Enable loading state
+        submitBtn.disabled = true;
+        spinner.classList.remove('hidden');
+
+        try {
+          const response = await fetch('/api/leads', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            // Success response
+            renderSuccessState(data.lead_id, data.assigned_providers.length);
+          } else {
+            // Handle duplicate phone+service differently for customer friendly experience
+            let errorMessage = data.error || 'Check fields and try again.';
+            if (data.code === 'DUPLICATE_LEAD') {
+              errorMessage = "You've already requested this service. Try a different service or contact support.";
+            } else if (data.details) {
+              errorMessage = Object.values(data.details).flatMap(errs => errs).join(', ');
+            }
+            showError("Request Refused", errorMessage);
+          }
+        } catch (err) {
+          showError("Connection Failed", "Unable to contact server. Please verify network connectivity.");
+        } finally {
+          submitBtn.disabled = false;
+          spinner.classList.add('hidden');
+        }
+      }
+
+      function showError(title, msg) {
+        document.getElementById('error-title').textContent = title;
+        document.getElementById('error-msg').textContent = msg;
+        document.getElementById('error-banner').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function renderSuccessState(leadId, providerCount) {
+        const parent = document.getElementById('card-body');
+        parent.innerHTML = `
+          <div class="text-center py-8 space-y-6 animate-fade-in">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-950/40 border border-emerald-500/50 rounded-full shadow-lg shadow-emerald-950">
+              <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div class="space-y-2">
+              <h3 class="text-xl font-bold text-white">Request Allocated!</h3>
+              <p class="text-sm text-[#a1a1aa] max-w-xs mx-auto">
+                Your service query was logged and matched against exactly ${providerCount} competitive partner providers in real-time.
+              </p>
+            </div>
+            
+            <div class="bg-[#0f0f12] border border-[#26262a] rounded-lg p-4 font-mono text-xs text-left space-y-2">
+              <div class="flex justify-between">
+                <span class="text-[#71717a]">SYSTEM_LEAD_ID:</span>
+                <span class="text-indigo-400 font-bold">${leadId}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-[#71717a]">PARTNERS_PROVISIONED:</span>
+                <span class="text-emerald-400">${providerCount} (VERIFIED)</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-[#71717a]">DISPATCH_STATUS:</span>
+                <span class="text-emerald-400">SUCCESS</span>
+              </div>
+            </div>
+
+            <button onclick="window.location.reload()" class="w-full h-11 bg-[#1c1c21] hover:bg-[#26262a] text-xs font-semibold uppercase tracking-wider text-white rounded-lg transition-colors cursor-pointer">
+              Submit New Query
+            </button>
+          </div>
+        `;
+      }
+    </script>
+  </body>
+</html>

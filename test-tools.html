@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Workbench Module • DATA_ENGINE_PRO</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <!-- Tailwind CSS (Tailwind Play CDN for seamless dynamic layout) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #0a0a0c;
+        color: #e2e2e7;
+        font-family: 'JetBrains Mono', monospace;
+      }
+      /* Custom terminal scroll styling */
+      #terminal-screen::-webkit-scrollbar {
+        width: 8px;
+      }
+      #terminal-screen::-webkit-scrollbar-track {
+        background: #050507;
+      }
+      #terminal-screen::-webkit-scrollbar-thumb {
+        background: #26262a;
+        border-radius: 4px;
+      }
+      #terminal-screen::-webkit-scrollbar-thumb:hover {
+        background: #3f3f46;
+      }
+    </style>
+  </head>
+  <body class="min-h-full flex flex-col justify-between overflow-x-hidden">
+    
+    <!-- Token Overlay Request Modal -->
+    <div id="auth-modal" class="fixed inset-0 bg-[#050507]/90 z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-[#0c0c0f] border border-[#26262a] rounded-xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+        <div class="text-center space-y-2">
+          <div class="inline-flex items-center justify-center w-10 h-10 bg-indigo-950 text-indigo-400 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          </div>
+          <h3 class="text-sm font-bold text-white uppercase">Security Clearance</h3>
+          <p class="text-xs text-[#71717a] text-center">Enter the ADMIN_TOKEN to issue test and bypass mechanisms.</p>
+        </div>
+        <div class="space-y-3">
+          <input type="password" id="admin-token-input" placeholder="Enter ADMIN_TOKEN..." class="w-full h-11 px-4 rounded-lg bg-[#0f0f12] border border-[#26262a] text-xs font-mono text-white focus:border-indigo-500 focus:outline-none" onkeydown="if(event.key === 'Enter') authenticateWorkbench()" />
+          <button onclick="authenticateWorkbench()" class="w-full h-11 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold uppercase tracking-widest text-white rounded-lg transition-colors cursor-pointer">
+            Authorize Token
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Workspace Frame -->
+    <div class="flex-1 flex flex-col">
+      <!-- Header -->
+      <header class="h-16 border-b border-[#26262a] flex items-center justify-between px-6 bg-[#0f0f12]">
+        <div class="flex items-center gap-4">
+          <div class="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-sm font-semibold tracking-tight uppercase">DATA_ENGINE_PRO</h1>
+            <p class="text-[10px] text-indigo-400">v1.2.9 • DEVELOPMENT_WORKBENCH</p>
+          </div>
+        </div>
+
+        <div>
+          <a href="/dashboard" class="text-xs text-[#71717a] hover:text-indigo-400 transition-colors uppercase pr-2">
+            &larr; Return to Dashboard
+          </a>
+        </div>
+      </header>
+
+      <!-- Panel Area -->
+      <main class="flex-1 max-w-7xl w-full mx-auto p-6 md:p-8 space-y-6 flex flex-col justify-between">
+        <div class="space-y-2">
+          <h2 class="text-base font-bold text-white uppercase tracking-tight flex items-center gap-2">
+            <span>&gt; CONCURRENCY_&_IDEMPOTENCY_BENCH</span>
+          </h2>
+          <p class="text-xs text-[#71717a]">Trigger transaction-isolated tests to verify correct database behaviors under sequential or peak stress.</p>
+        </div>
+
+        <!-- System Controls Buttons Row -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Button 1: Reset Quotas -->
+          <button onclick="triggerResetQuotas()" id="btn-reset" class="h-14 bg-[#111] hover:bg-emerald-950/45 border border-[#26262a] active:border-emerald-500 hover:border-emerald-500 rounded-lg text-xs font-semibold uppercase tracking-wider text-emerald-400 hover:shadow-[0_0_12px_rgba(16,185,129,0.2)] transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <span>Reset Quotas</span>
+          </button>
+          <!-- Button 2: Webhook x5 -->
+          <button onclick="triggerWebhookFiveTimes()" id="btn-webhook" class="h-14 bg-[#111] hover:bg-amber-950/45 border border-[#26262a] active:border-amber-500 hover:border-amber-500 rounded-lg text-xs font-semibold uppercase tracking-wider text-amber-400 hover:shadow-[0_0_12px_rgba(245,158,11,0.2)] transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <span>Idempotency x5</span>
+          </button>
+          <!-- Button 3: Generate 10 Leads -->
+          <button onclick="triggerGenerateTenLeads()" id="btn-gen10" class="h-14 bg-[#111] hover:bg-indigo-950/45 border border-[#26262a] active:border-indigo-500 hover:border-indigo-500 rounded-lg text-xs font-semibold uppercase tracking-wider text-indigo-400 hover:shadow-[0_0_12px_rgba(99,102,241,0.2)] transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <span>Generate 10 Leads</span>
+          </button>
+          <!-- Button 4: Concurrent Test -->
+          <button onclick="triggerConcurrentTest()" id="btn-concurrent" class="h-14 bg-[#111] hover:bg-red-950/45 border border-[#26262a] active:border-red-500 hover:border-red-500 rounded-lg text-xs font-semibold uppercase tracking-wider text-red-400 hover:shadow-[0_0_12px_rgba(239,68,68,0.2)] transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <span>Concurrent Test x5</span>
+          </button>
+        </div>
+
+        <!-- Terminal Panel Area -->
+        <div class="bg-[#050507] border border-[#26262a] rounded-xl flex flex-col overflow-hidden h-[460px] shadow-2xl relative">
+          <!-- Header Bar -->
+          <div class="h-10 bg-[#0c0c0f] border-b border-[#26262a] px-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-2.5 h-2.5 rounded-full bg-red-600/60"></div>
+              <div class="w-2.5 h-2.5 rounded-full bg-yellow-600/60"></div>
+              <div class="w-2.5 h-2.5 rounded-full bg-green-600/60"></div>
+              <span class="text-[10px] text-[#71717a] font-mono ml-2">CONSOLE_LOGSTREAM</span>
+            </div>
+            <button onclick="clearTerminal()" class="text-[10px] text-[#71717a] hover:text-white border border-[#26262a] px-2.5 py-1 rounded bg-[#111] font-mono hover:bg-zinc-800 transition-colors">
+              CLEAR SCREEN
+            </button>
+          </div>
+
+          <!-- Terminal Content lines -->
+          <div id="terminal-screen" class="flex-1 p-5 overflow-y-auto space-y-1.5 font-mono text-xs text-emerald-400 bg-[#020202]">
+            <div class="text-[#71717a]">[00:00:00] &gt; SYSTEM: STABLE_READY. Enter your ADMIN_TOKEN if requested to configure permissions.</div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- Bottom Status Bar -->
+    <footer class="h-10 bg-[#0c0c0f] border-t border-[#26262a] px-6 flex items-center justify-between text-[11px] text-[#71717a] font-mono">
+      <span>LATENCY: ZERO_LATENCY_LOOPBACK</span>
+      <span>PostgreSQL raw transactional modes • SECURED</span>
+    </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('admin_token');
+        if (!token) {
+          showAuthModal();
+        }
+      });
+
+      function showAuthModal() {
+        document.getElementById('auth-modal').classList.remove('hidden');
+      }
+
+      function hideAuthModal() {
+        document.getElementById('auth-modal').classList.add('hidden');
+      }
+
+      function authenticateWorkbench() {
+        const input = document.getElementById('admin-token-input').value.trim();
+        if (input) {
+          localStorage.setItem('admin_token', input);
+          hideAuthModal();
+          logLine('SYSTEM', `ADMIN_TOKEN credentials cached. Workbench authorised.`, '#3fb950');
+        }
+      }
+
+      function clearTerminal() {
+        const screen = document.getElementById('terminal-screen');
+        screen.innerHTML = `<div class="text-[#71717a]">[${getTimestamp()}] &gt; SYSTEM: terminal buffer cleared.</div>`;
+      }
+
+      function getTimestamp() {
+        const d = new Date();
+        return d.toTimeString().split(' ')[0];
+      }
+
+      function logLine(source, message, color = '#e2e2e7') {
+        const screen = document.getElementById('terminal-screen');
+        const d = document.createElement('div');
+        d.className = 'leading-relaxed';
+        d.innerHTML = `<span class="text-[#71717a]">[${getTimestamp()}]</span> <span class="font-bold opacity-80" style="color: ${color}">&gt; ${source}:</span> <span style="color: ${color}">${message}</span>`;
+        screen.appendChild(d);
+        screen.scrollTop = screen.scrollHeight;
+      }
+
+      function setButtonsDisabled(disabled) {
+        ['btn-reset', 'btn-webhook', 'btn-gen10', 'btn-concurrent'].forEach(id => {
+          document.getElementById(id).disabled = disabled;
+        });
+      }
+
+      // Action 1: Reset Quotas
+      async function triggerResetQuotas() {
+        const token = localStorage.getItem('admin_token');
+        if (!token) return showAuthModal();
+
+        setButtonsDisabled(true);
+        logLine('ACTION', 'Initiating global quota resets...', '#a1a1aa');
+
+        try {
+          const response = await fetch('/api/test/reset-quotas', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            logLine('SUCCESS', `Idempotency ID: ${data.event_id}`, '#3fb950');
+            logLine('SUCCESS', `Payload returned: ${JSON.stringify(data.webhook_response)}`, '#3fb950');
+          } else {
+            logLine('ERROR', `Action reports failure: [${response.status}] ${data.error || 'Server rejected query.'}`, '#f85149');
+          }
+        } catch (err) {
+          logLine('CRITICAL', `Execution interrupted: ${err.message}`, '#f85149');
+        } finally {
+          setButtonsDisabled(false);
+        }
+      }
+
+      // Action 2: Trigger Webhook x5
+      async function triggerWebhookFiveTimes() {
+        const token = localStorage.getItem('admin_token');
+        if (!token) return showAuthModal();
+
+        setButtonsDisabled(true);
+        logLine('ACTION', 'Initiating sequential webhook storm testing...', '#a1a1aa');
+
+        try {
+          const response = await fetch('/api/test/trigger-webhook', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            logLine('IDEMPOTENCE', `Targeting token ID: ${data.event_id}`, '#d29922');
+            
+            data.results.forEach(res => {
+              const color = res.data && res.data.duplicate ? '#71717a' : '#3fb950';
+              const label = res.data && res.data.duplicate ? '[DUPLICATE_IGNORED]' : '[INITIAL_PROCESSED]';
+              logLine(`ATTEMPT_${res.attempt}`, `${label} Status: ${res.status} -> Payload: ${JSON.stringify(res.data)}`, color);
+            });
+
+            logLine('SUMMARY', `Processes complete. Active allocations tracked: ${data.summary.processed}, Intercepted duplicate events: ${data.summary.ignored}`, '#d29922');
+          } else {
+            logLine('ERROR', `Webhook task rejected: [${response.status}] ${data.error || 'System fault.'}`, '#f85149');
+          }
+        } catch (err) {
+          logLine('CRITICAL', `Task execution failed: ${err.message}`, '#f85149');
+        } finally {
+          setButtonsDisabled(false);
+        }
+      }
+
+      // Action 3: Generate 10 Leads
+      async function triggerGenerateTenLeads() {
+        const token = localStorage.getItem('admin_token');
+        if (!token) return showAuthModal();
+
+        setButtonsDisabled(true);
+        logLine('ACTION', 'Burst loading 10 sequential inquiries...', '#a1a1aa');
+
+        try {
+          const response = await fetch('/api/test/generate-leads', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            data.results.forEach(res => {
+              if (res.status === 201) {
+                logLine(`LEAD_0${res.lead_num}`, `Service: ${res.service_id} | ALL_OK | Allotted: [${res.data.assigned_providers.join(', ')}]`, '#3fb950');
+              } else {
+                logLine(`LEAD_0${res.lead_num}`, `Service: ${res.service_id} | ALLOCATION_FAILED | Response: ${JSON.stringify(res.data)}`, '#f85149');
+              }
+            });
+
+            logLine('SUMMARY', `Sequence resolved. Dispatched: ${data.total}, Completed allotment: ${data.successful}, Volatility errors: ${data.failed}`, '#a1a1aa');
+          } else {
+            logLine('ERROR', `Generation sequence rejected: [${response.status}] ${data.error || 'Operation forbidden.'}`, '#f85149');
+          }
+        } catch (err) {
+          logLine('CRITICAL', `Pipeline network abort: ${err.message}`, '#f85149');
+        } finally {
+          setButtonsDisabled(false);
+        }
+      }
+
+      // Action 4: Concurrent Test
+      async function triggerConcurrentTest() {
+        const token = localStorage.getItem('admin_token');
+        if (!token) return showAuthModal();
+
+        setButtonsDisabled(true);
+        logLine('ACTION', 'Launching 5 parallel allocation threads simultaneously...', '#ff4444');
+
+        try {
+          const response = await fetch('/api/test/concurrent-leads', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            data.results.forEach(res => {
+              if (res.status === 201) {
+                logLine(`THREAD_0${res.attempt}`, `Allotment committed. Allocated: [${res.data.assigned_providers.join(', ')}]`, '#3fb950');
+              } else {
+                logLine(`THREAD_0${res.attempt}`, `Serialization contention or quota hit: [Status: ${res.status}] Error: ${JSON.stringify(res.data || res.error)}`, '#f85149');
+              }
+            });
+
+            logLine('SUMMARY', `Contention results. Fired requests: ${data.total_fired}, Allocated successfully: ${data.successful}, Contained concurrency faults: ${data.failed}`, '#ffaa00');
+          } else {
+            logLine('ERROR', `Concurrency workbench error: [${response.status}] ${data.error || 'Check backend console logs.'}`, '#f85149');
+          }
+        } catch (err) {
+          logLine('CRITICAL', `Concurrency routine aborted: ${err.message}`, '#f85149');
+        } finally {
+          setButtonsDisabled(false);
+        }
+      }
+    </script>
+  </body>
+</html>
