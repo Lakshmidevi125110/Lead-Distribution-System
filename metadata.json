@@ -1,0 +1,6 @@
+{
+  "name": "Lead Distribution System",
+  "description": "Production-grade lead distribution engine with serialization, transactional integrity, and and real-time dashboard sync.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
