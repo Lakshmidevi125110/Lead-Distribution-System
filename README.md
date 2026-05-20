@@ -1,90 +1,95 @@
-# mime
+# node-postgres
 
-Comprehensive MIME type mapping API based on mime-db module.
+[![Build Status](https://secure.travis-ci.org/brianc/node-postgres.svg?branch=master)](http://travis-ci.org/brianc/node-postgres)
+<span class="badge-npmversion"><a href="https://npmjs.org/package/pg" title="View this project on NPM"><img src="https://img.shields.io/npm/v/pg.svg" alt="NPM version" /></a></span>
+<span class="badge-npmdownloads"><a href="https://npmjs.org/package/pg" title="View this project on NPM"><img src="https://img.shields.io/npm/dm/pg.svg" alt="NPM downloads" /></a></span>
+
+Non-blocking PostgreSQL client for Node.js. Pure JavaScript and optional native libpq bindings.
 
 ## Install
 
-Install with [npm](http://github.com/isaacs/npm):
-
-    npm install mime
-
-## Contributing / Testing
-
-    npm run test
-
-## Command Line
-
-    mime [path_string]
-
-E.g.
-
-    > mime scripts/jquery.js
-    application/javascript
-
-## API - Queries
-
-### mime.lookup(path)
-Get the mime type associated with a file, if no mime type is found `application/octet-stream` is returned. Performs a case-insensitive lookup using the extension in `path` (the substring after the last '/' or '.').  E.g.
-
-```js
-var mime = require('mime');
-
-mime.lookup('/path/to/file.txt');         // => 'text/plain'
-mime.lookup('file.txt');                  // => 'text/plain'
-mime.lookup('.TXT');                      // => 'text/plain'
-mime.lookup('htm');                       // => 'text/html'
+```sh
+$ npm install pg
 ```
 
-### mime.default_type
-Sets the mime type returned when `mime.lookup` fails to find the extension searched for. (Default is `application/octet-stream`.)
+---
 
-### mime.extension(type)
-Get the default extension for `type`
+## :star: [Documentation](https://node-postgres.com) :star:
 
-```js
-mime.extension('text/html');                 // => 'html'
-mime.extension('application/octet-stream');  // => 'bin'
-```
+### Features
 
-### mime.charsets.lookup()
+- Pure JavaScript client and native libpq bindings share _the same API_
+- Connection pooling
+- Extensible JS ↔ PostgreSQL data-type coercion
+- Supported PostgreSQL features
+  - Parameterized queries
+  - Named statements with query plan caching
+  - Async notifications with `LISTEN/NOTIFY`
+  - Bulk import & export with `COPY TO/COPY FROM`
 
-Map mime-type to charset
+### Extras
 
-```js
-mime.charsets.lookup('text/plain');        // => 'UTF-8'
-```
+node-postgres is by design pretty light on abstractions. These are some handy modules we've been using over the years to complete the picture.
+The entire list can be found on our [wiki](https://github.com/brianc/node-postgres/wiki/Extras).
 
-(The logic for charset lookups is pretty rudimentary.  Feel free to suggest improvements.)
+## Support
 
-## API - Defining Custom Types
+node-postgres is free software. If you encounter a bug with the library please open an issue on the [GitHub repo](https://github.com/brianc/node-postgres). If you have questions unanswered by the documentation please open an issue pointing out how the documentation was unclear & I will do my best to make it better!
 
-Custom type mappings can be added on a per-project basis via the following APIs.
+When you open an issue please provide:
 
-### mime.define()
+- version of Node
+- version of Postgres
+- smallest possible snippet of code to reproduce the problem
 
-Add custom mime/extension mappings
+You can also follow me [@brianc](https://bsky.app/profile/brianc.bsky.social) on bluesky if that's your thing for updates on node-postgres with nearly zero non node-postgres content. My old twitter/x account is no longer used.
 
-```js
-mime.define({
-    'text/x-some-format': ['x-sf', 'x-sft', 'x-sfml'],
-    'application/x-my-type': ['x-mt', 'x-mtt'],
-    // etc ...
-});
+## Sponsorship :two_hearts:
 
-mime.lookup('x-sft');                 // => 'text/x-some-format'
-```
+node-postgres's continued development has been made possible in part by generous financial support from [the community](https://github.com/brianc/node-postgres/blob/master/SPONSORS.md).
 
-The first entry in the extensions array is returned by `mime.extension()`. E.g.
+If you or your company are benefiting from node-postgres and would like to help keep the project financially sustainable [please consider supporting](https://github.com/sponsors/brianc) its development.
 
-```js
-mime.extension('text/x-some-format'); // => 'x-sf'
-```
+### Featured sponsor
 
-### mime.load(filepath)
+Special thanks to [medplum](https://medplum.com) for their generous and thoughtful support of node-postgres!
 
-Load mappings from an Apache ".types" format file
+![medplum](https://raw.githubusercontent.com/medplum/medplum-logo/refs/heads/main/medplum-logo.png)
 
-```js
-mime.load('./my_project.types');
-```
-The .types file format is simple -  See the `types` dir for examples.
+## Contributing
+
+**:heart: contributions!**
+
+I will **happily** accept your pull request if it:
+
+- **has tests**
+- looks reasonable
+- does not break backwards compatibility
+
+If your change involves breaking backwards compatibility please please point that out in the pull request & we can discuss & plan when and how to release it and what type of documentation or communicate it will require.
+
+## Troubleshooting and FAQ
+
+The causes and solutions to common errors can be found among the [Frequently Asked Questions (FAQ)](https://github.com/brianc/node-postgres/wiki/FAQ)
+
+## License
+
+Copyright (c) 2010-2020 Brian Carlson (brian.m.carlson@gmail.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

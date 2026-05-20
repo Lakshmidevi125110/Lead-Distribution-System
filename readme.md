@@ -1,147 +1,51 @@
-<h1 align="center"> <code>express-rate-limit</code> </h1>
+# ms
 
-<div align="center">
+[![Build Status](https://travis-ci.org/zeit/ms.svg?branch=master)](https://travis-ci.org/zeit/ms)
+[![Slack Channel](http://zeit-slackin.now.sh/badge.svg)](https://zeit.chat/)
 
-[![tests](https://img.shields.io/github/actions/workflow/status/express-rate-limit/express-rate-limit/ci.yaml)](https://github.com/express-rate-limit/express-rate-limit/actions/workflows/ci.yaml)
-[![npm version](https://img.shields.io/npm/v/express-rate-limit.svg)](https://npmjs.org/package/express-rate-limit 'View this project on NPM')
-[![npm downloads](https://img.shields.io/npm/dm/express-rate-limit)](https://www.npmjs.com/package/express-rate-limit)
-[![license](https://img.shields.io/npm/l/express-rate-limit)](license.md)
+Use this package to easily convert various time formats to milliseconds.
 
-</div>
+## Examples
 
-Basic rate-limiting middleware for [Express](http://expressjs.com/). Use to
-limit repeated requests to public APIs and/or endpoints such as password reset.
-Plays nice with
-[express-slow-down](https://www.npmjs.com/package/express-slow-down) and
-[ratelimit-header-parser](https://www.npmjs.com/package/ratelimit-header-parser).
-
-## Usage
-
-The [full documentation](https://express-rate-limit.mintlify.app/overview) is
-available on-line.
-
-```ts
-import { rateLimit } from 'express-rate-limit'
-
-const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-	// store: ... , // Redis, Memcached, etc. See below.
-})
-
-// Apply the rate limiting middleware to all requests.
-app.use(limiter)
+```js
+ms('2 days')  // 172800000
+ms('1d')      // 86400000
+ms('10h')     // 36000000
+ms('2.5 hrs') // 9000000
+ms('2h')      // 7200000
+ms('1m')      // 60000
+ms('5s')      // 5000
+ms('1y')      // 31557600000
+ms('100')     // 100
 ```
 
-### Data Stores
+### Convert from milliseconds
 
-The rate limiter comes with a built-in memory store, and supports a variety of
-[external data stores](https://express-rate-limit.mintlify.app/reference/stores).
+```js
+ms(60000)             // "1m"
+ms(2 * 60000)         // "2m"
+ms(ms('10 hours'))    // "10h"
+```
 
-### Configuration
+### Time format written-out
 
-All function options may be async. Click the name for additional info and
-default values.
+```js
+ms(60000, { long: true })             // "1 minute"
+ms(2 * 60000, { long: true })         // "2 minutes"
+ms(ms('10 hours'), { long: true })    // "10 hours"
+```
 
-| Option                     | Type                                      | Remarks                                                                                         |
-| -------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| [`windowMs`]               | `number`                                  | How long to remember requests for, in milliseconds.                                             |
-| [`limit`]                  | `number` \| `function`                    | How many requests to allow.                                                                     |
-| [`message`]                | `string` \| `json` \| `function`          | Response to return after limit is reached.                                                      |
-| [`statusCode`]             | `number`                                  | HTTP status code after limit is reached (default is 429).                                       |
-| [`handler`]                | `function`                                | Function to run after limit is reached (overrides `message` and `statusCode` settings, if set). |
-| [`legacyHeaders`]          | `boolean`                                 | Enable the `X-Rate-Limit` header.                                                               |
-| [`standardHeaders`]        | `'draft-6'` \| `'draft-7'` \| `'draft-8'` | Enable the `Ratelimit` header.                                                                  |
-| [`identifier`]             | `string` \| `function`                    | Name associated with the quota policy enforced by this rate limiter.                            |
-| [`store`]                  | `Store`                                   | Use a custom store to share hit counts across multiple nodes.                                   |
-| [`passOnStoreError`]       | `boolean`                                 | Allow (`true`) or block (`false`, default) traffic if the store becomes unavailable.            |
-| [`keyGenerator`]           | `function`                                | Identify users (defaults to IP address).                                                        |
-| [`requestPropertyName`]    | `string`                                  | Add rate limit info to the `req` object.                                                        |
-| [`skip`]                   | `function`                                | Return `true` to bypass the limiter for the given request.                                      |
-| [`skipSuccessfulRequests`] | `boolean`                                 | Uncount 1xx/2xx/3xx responses.                                                                  |
-| [`skipFailedRequests`]     | `boolean`                                 | Uncount 4xx/5xx responses.                                                                      |
-| [`requestWasSuccessful`]   | `function`                                | Used by `skipSuccessfulRequests` and `skipFailedRequests`.                                      |
-| [`validate`]               | `boolean` \| `object`                     | Enable or disable built-in validation checks.                                                   |
+## Features
 
-## Thank You
+- Works both in [node](https://nodejs.org) and in the browser.
+- If a number is supplied to `ms`, a string with a unit is returned.
+- If a string that contains the number is supplied, it returns it as a number (e.g.: it returns `100` for `'100'`).
+- If you pass a string with a number and a valid unit, the number of equivalent ms is returned.
 
-Sponsored by [Zuplo](https://zuplo.link/express-rate-limit) a fully-managed API
-Gateway for developers. Add
-[dynamic rate-limiting](https://zuplo.link/dynamic-rate-limiting),
-authentication and more to any API in minutes. Learn more at
-[zuplo.com](https://zuplo.link/express-rate-limit)
+## Caught a bug?
 
-<p align="center">
-<a href="https://zuplo.link/express-rate-limit">
-<picture width="322">
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/express-rate-limit/express-rate-limit/assets/114976/cd2f6fa7-eae1-4fbb-be7d-b17df4c6f383">
-  <img alt="zuplo-logo" src="https://github.com/express-rate-limit/express-rate-limit/assets/114976/66fd75fa-b39e-4a8c-8d7a-52369bf244dc" width="322">
-</picture>
-</a>
-</p>
+1. [Fork](https://help.github.com/articles/fork-a-repo/) this repository to your own GitHub account and then [clone](https://help.github.com/articles/cloning-a-repository/) it to your local device
+2. Link the package to the global module directory: `npm link`
+3. Within the module you want to test your local development instance of ms, just link it to the dependencies: `npm link ms`. Instead of the default one from npm, node will now use your clone of ms!
 
----
-
-Thanks to Mintlify for hosting the documentation at
-[express-rate-limit.mintlify.app](https://express-rate-limit.mintlify.app)
-
-<p align="center">
-	<a href="https://mintlify.com/?utm_campaign=devmark&utm_medium=readme&utm_source=express-rate-limit">
-		<img height="75" src="https://devmark-public-assets.s3.us-west-2.amazonaws.com/sponsorships/mintlify.svg" alt="Create your docs today">
-	</a>
-</p>
-
----
-
-Finally, thank you to everyone who's contributed to this project in any way! 🫶
-
-## Issues and Contributing
-
-If you encounter a bug or want to see something added/changed, please go ahead
-and
-[open an issue](https://github.com/express-rate-limit/express-rate-limit/issues/new)!
-If you need help with something, feel free to
-[start a discussion](https://github.com/express-rate-limit/express-rate-limit/discussions/new)!
-
-If you wish to contribute to the library, thanks! First, please read
-[the contributing guide](https://express-rate-limit.mintlify.app/docs/guides/contributing.mdx).
-Then you can pick up any issue and fix/implement it!
-
-## License
-
-MIT © [Nathan Friedly](http://nfriedly.com/),
-[Vedant K](https://github.com/gamemaker1)
-
-[`windowMs`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#windowms
-[`limit`]: https://express-rate-limit.mintlify.app/reference/configuration#limit
-[`message`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#message
-[`statusCode`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#statuscode
-[`handler`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#handler
-[`legacyHeaders`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#legacyheaders
-[`standardHeaders`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#standardheaders
-[`identifier`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#identifier
-[`store`]: https://express-rate-limit.mintlify.app/reference/configuration#store
-[`passOnStoreError`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#passOnStoreError
-[`keyGenerator`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#keygenerator
-[`requestPropertyName`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#requestpropertyname
-[`skip`]: https://express-rate-limit.mintlify.app/reference/configuration#skip
-[`skipSuccessfulRequests`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#skipsuccessfulrequests
-[`skipFailedRequests`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#skipfailedrequests
-[`requestWasSuccessful`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#requestwassuccessful
-[`validate`]:
-	https://express-rate-limit.mintlify.app/reference/configuration#validate
+As always, you can run the tests using: `npm test`

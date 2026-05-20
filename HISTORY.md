@@ -1,29 +1,58 @@
-1.1.2 / 2016-01-17
+1.3.3 / 2019-04-15
+==================
+
+  * Fix Node.js 0.8 return value inconsistencies
+
+1.3.2 / 2017-09-09
+==================
+
+  * perf: reduce overhead for full URLs
+  * perf: unroll the "fast-path" `RegExp`
+
+1.3.1 / 2016-01-17
 ==================
 
   * perf: enable strict mode
 
-1.1.1 / 2014-12-30
+1.3.0 / 2014-08-09
 ==================
 
-  * Improve `browserify` support
+  * Add `parseurl.original` for parsing `req.originalUrl` with fallback
+  * Return `undefined` if `req.url` is `undefined`
 
-1.1.0 / 2014-07-05
+1.2.0 / 2014-07-21
 ==================
 
-  * Add `CONNECT` method
- 
-1.0.1 / 2014-06-02
+  * Cache URLs based on original value
+  * Remove no-longer-needed URL mis-parse work-around
+  * Simplify the "fast-path" `RegExp`
+
+1.1.3 / 2014-07-08
 ==================
 
-  * Fix module to work with harmony transform
+  * Fix typo
 
-1.0.0 / 2014-05-08
+1.1.2 / 2014-07-08
 ==================
 
-  * Add `PURGE` method
+  * Seriously fix Node.js 0.8 compatibility
 
-0.1.0 / 2013-10-28
+1.1.1 / 2014-07-08
 ==================
 
-  * Add `http.METHODS` support
+  * Fix Node.js 0.8 compatibility
+
+1.1.0 / 2014-07-08
+==================
+
+  * Incorporate URL href-only parse fast-path
+
+1.0.1 / 2014-03-08
+==================
+
+  * Add missing `require`
+
+1.0.0 / 2014-03-08
+==================
+
+  * Genesis from `connect`
